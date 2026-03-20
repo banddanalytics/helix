@@ -1,0 +1,51 @@
+# Cursor terminal/agent sandbox — AppArmor profile
+# Replaces/enhances the minimal profile shipped in the cursor .deb.
+#
+# Journal may show DENIED bind + netlink raw even when "network netlink raw" is present:
+# stale parser cache or kernel/policy quirks. "network," fixes NETLINK_ROUTE setup reliably.
+# Scope is only the cursorsandbox helper binary, not your whole session.
+# Validated with AppArmor parser 3.0.x (no "userns" rule — sysctl drop-in handles userns).
+#
+# Install: sudo ./fix-cursor-terminal-sandbox.sh
+
+profile cursor_sandbox /usr/share/cursor/resources/app/resources/helpers/cursorsandbox {
+  file,
+  /** ix,
+
+  network,
+
+  capability sys_admin,
+  capability net_admin,
+  capability chown,
+  capability setuid,
+  capability setgid,
+  capability setpcap,
+  capability dac_override,
+
+  mount,
+  remount,
+  umount,
+
+  /usr/share/cursor/resources/app/resources/helpers/cursorsandbox mr,
+}
+
+profile cursor_sandbox_remote /home/*/.cursor-server/bin/*/*/resources/helpers/{cursor-sandbox,cursorsandbox} {
+  file,
+  /** ix,
+
+  network,
+
+  capability sys_admin,
+  capability net_admin,
+  capability chown,
+  capability setuid,
+  capability setgid,
+  capability setpcap,
+  capability dac_override,
+
+  mount,
+  remount,
+  umount,
+
+  /home/*/.cursor-server/bin/*/*/resources/helpers/{cursor-sandbox,cursorsandbox} mr,
+}

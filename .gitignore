@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+venv/
+.venv/
+*.egg
+
+# Numba cache
+__pycache__/
+*.nbi
+*.nbc
+
+# ArcticDB / data
+*.lmdb/
+data/
+tick_data/
+*.db
+
+# VectorBT cache
+/tmp/vbt_cache/
+
+# Environment / secrets
+.env
+.env.*
+secrets/
+*.key
+*.pem
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node
+node_modules/
+dashboard/shell/dist/
+dashboard/remotes/*/dist/
+
+# Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# mypy
+.mypy_cache/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,14 @@
+{
+  "name": "helix-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "shell",
+    "remotes/*"
+  ],
+  "scripts": {
+    "install:all": "npm install --workspaces",
+    "build:all": "npm run build --workspaces",
+    "dev:shell": "npm run start --workspace=shell"
+  }
+}
