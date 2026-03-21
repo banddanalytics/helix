@@ -207,9 +207,7 @@ class KCHValidator:
             for imp in imports:
                 # Match "arcticdb" in "arcticdb", "arcticdb.Arctic", etc.
                 if (
-                    imp == lib
-                    or imp.startswith(lib + ".")
-                    or imp.startswith(lib + " ")
+                    imp == lib or imp.startswith(lib + ".") or imp.startswith(lib + " ")
                 ) and lib not in matched:
                     matched.append(lib)
         return matched

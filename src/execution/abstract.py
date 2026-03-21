@@ -4,6 +4,7 @@ This module defines the abstract contracts that every downstream component
 codes against. No reference to any specific broker, exchange, or instrument
 type exists here — those belong in concrete adapters.
 """
+
 from __future__ import annotations
 
 import enum
@@ -12,7 +13,6 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 import numpy as np
-
 
 # ---------------------------------------------------------------------------
 # Enums
@@ -149,7 +149,8 @@ class Position:
         entry_price: Average fill price when position was opened.
         current_price: Latest market price for mark-to-market.
         unrealized_pnl: Mark-to-market profit/loss in account currency.
-        swap_accumulated: Accumulated overnight financing costs (0 for non-swap instruments).
+        swap_accumulated: Accumulated overnight financing costs
+            (0 for non-swap instruments).
         margin_used: Collateral reserved for this position.
     """
 
@@ -179,9 +180,7 @@ class MarketDataProvider(ABC):
         ...
 
     @abstractmethod
-    async def get_bars(
-        self, symbol: str, timeframe: str, count: int
-    ) -> list[Bar]:
+    async def get_bars(self, symbol: str, timeframe: str, count: int) -> list[Bar]:
         """Retrieve the most recent *count* bars for a symbol at *timeframe*."""
         ...
 

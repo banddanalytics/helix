@@ -39,8 +39,12 @@ STUB: dict[str, dict[str, set[str]]] = {
         },
         # Core NATS client methods
         "publish": {
-            "subject", "payload", "reply", "headers",
-            "timeout", "stream",
+            "subject",
+            "payload",
+            "reply",
+            "headers",
+            "timeout",
+            "stream",
         },
         "subscribe": {
             "subject",

@@ -45,11 +45,18 @@ def mt5_stub_dir(tmp_path: Path) -> Path:
         textwrap.dedent("""\
             STUB: dict[str, dict[str, set[str]]] = {
                 "MetaTrader5": {
-                    "initialize": {"path", "login", "password", "server", "timeout", "portable"},
+                    "initialize": {
+                        "path", "login", "password",
+                        "server", "timeout", "portable",
+                    },
                     "login": {"login", "password", "server", "timeout"},
                     "shutdown": set(),
-                    "copy_ticks_range": {"symbol", "date_from", "date_to", "flags"},
-                    "copy_rates_from_pos": {"symbol", "timeframe", "start_pos", "count"},
+                    "copy_ticks_range": {
+                        "symbol", "date_from", "date_to", "flags",
+                    },
+                    "copy_rates_from_pos": {
+                        "symbol", "timeframe", "start_pos", "count",
+                    },
                     "symbol_info": {"symbol"},
                     "order_send": {"request"},
                     "positions_get": {"symbol", "group", "ticket"},

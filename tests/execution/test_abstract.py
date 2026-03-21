@@ -1,4 +1,5 @@
 """Contract tests for src/execution/abstract.py — enums, dataclasses, and ABCs."""
+
 from __future__ import annotations
 
 import inspect
@@ -7,7 +8,6 @@ from typing import Any
 
 import numpy as np
 import pytest
-
 
 # ---------------------------------------------------------------------------
 # Enum tests
@@ -87,7 +87,7 @@ class TestTickDataclass:
 
         tick = self._make_tick()
         with pytest.raises(FrozenInstanceError):
-            tick.bid = 1.2  # type: ignore[misc]
+            tick.bid = 1.2
 
     def test_default_volumes(self) -> None:
         from src.execution.abstract import Tick
@@ -138,7 +138,7 @@ class TestBarDataclass:
 
         bar = self._make_bar()
         with pytest.raises(FrozenInstanceError):
-            bar.close = 1.3  # type: ignore[misc]
+            bar.close = 1.3
 
     def test_default_volume_and_spread(self) -> None:
         from src.execution.abstract import Bar
@@ -183,7 +183,7 @@ class TestOrderRequestDataclass:
 
         req = self._make_order()
         with pytest.raises(FrozenInstanceError):
-            req.quantity = 1.0  # type: ignore[misc]
+            req.quantity = 1.0
 
     def test_defaults(self) -> None:
         from src.execution.abstract import OrderRequest, OrderType, Side
@@ -219,7 +219,7 @@ class TestOrderResultDataclass:
 
         res = self._make_result()
         with pytest.raises(FrozenInstanceError):
-            res.success = False  # type: ignore[misc]
+            res.success = False
 
     def test_default_error_message(self) -> None:
         res = self._make_result()
@@ -283,7 +283,7 @@ class TestMarketDataProviderABC:
             BadProvider()  # type: ignore[abstract]
 
     def test_partial_impl_raises_type_error(self) -> None:
-        from src.execution.abstract import Bar, MarketDataProvider, Tick
+        from src.execution.abstract import MarketDataProvider, Tick
 
         class PartialProvider(MarketDataProvider):
             async def get_ticks(
@@ -388,7 +388,7 @@ class TestPositionManagerABC:
             BadManager()  # type: ignore[abstract]
 
     def test_partial_impl_raises_type_error(self) -> None:
-        from src.execution.abstract import OrderResult, Position, PositionManager
+        from src.execution.abstract import Position, PositionManager
 
         class PartialManager(PositionManager):
             async def get_positions(self) -> list[Position]:
@@ -423,7 +423,7 @@ class TestPositionManagerABC:
 
         sig = inspect.signature(PositionManager.get_account_equity)
         # only 'self' — no additional parameters
-        params = [p for p in sig.parameters.keys() if p != "self"]
+        params = [p for p in sig.parameters if p != "self"]
         assert params == []
 
 
@@ -442,9 +442,7 @@ class TestFullImplementation:
             Tick,
         )
 
-        class MinimalAdapter(
-            MarketDataProvider, OrderExecutor, PositionManager
-        ):
+        class MinimalAdapter(MarketDataProvider, OrderExecutor, PositionManager):
             async def get_ticks(
                 self, symbol: str, start: np.datetime64, end: np.datetime64
             ) -> list[Tick]:
