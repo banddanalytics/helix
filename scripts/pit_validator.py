@@ -12,6 +12,7 @@ Exit codes:
     0 — all files compliant
     1 — one or more violations found
 """
+
 from __future__ import annotations
 
 import argparse

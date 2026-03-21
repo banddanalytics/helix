@@ -67,6 +67,7 @@ class TestStubGeneratorFileOutput:
         out_path = tmp_path / "os_path_stubs.py"
         gen.generate_stub_file("os.path", out_path)
         import ast as ast_mod
+
         # Should not raise
         ast_mod.parse(out_path.read_text())
 

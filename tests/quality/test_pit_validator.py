@@ -7,14 +7,13 @@ Tests cover:
 - Rolling aggregation with .shift(1) is COMPLIANT
 - CLI exits 0 on clean directory, 1 on violations
 """
+
 from __future__ import annotations
 
 import textwrap
 from pathlib import Path
 
-import pytest
-
-from src.quality.pit_validator import PiTViolation, PiTValidator
+from src.quality.pit_validator import PiTValidator, PiTViolation
 
 
 class TestPiTViolatorDirectAccess:
@@ -83,9 +82,7 @@ class TestPiTViolatorDirectAccess:
 
         assert len(violations) == 0
 
-    def test_returns_access_without_shift_is_violation(
-        self, tmp_path: Path
-    ) -> None:
+    def test_returns_access_without_shift_is_violation(self, tmp_path: Path) -> None:
         """df['x'] = df['returns'] must be flagged."""
         code = textwrap.dedent("""\
             def compute(df):

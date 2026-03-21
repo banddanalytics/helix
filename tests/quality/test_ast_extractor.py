@@ -97,7 +97,9 @@ class TestASTExtractorFunctionCalls:
         code = "mt5.shutdown()"
         extractor = ASTExtractor()
         extractor.extract(code)
-        shutdown_calls = [c for c in extractor.function_calls if c["func"] == "shutdown"]
+        shutdown_calls = [
+            c for c in extractor.function_calls if c["func"] == "shutdown"
+        ]
         assert len(shutdown_calls) == 1
         assert shutdown_calls[0]["kwargs"] == set()
 

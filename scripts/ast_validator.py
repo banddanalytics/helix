@@ -86,7 +86,9 @@ def main(argv: list[str] | None = None) -> int:
             print("No violations found.")
         else:
             for v in violations:
-                print(f"[{v.severity}] {v.violation_type} {v.file}:{v.line} — {v.message}")
+                print(
+                    f"[{v.severity}] {v.violation_type} {v.file}:{v.line} — {v.message}"
+                )
                 if v.suggestion:
                     print(f"  Suggestion: {v.suggestion}")
 
