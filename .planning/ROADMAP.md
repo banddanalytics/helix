@@ -33,7 +33,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans:** 7 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Project scaffold: venv, pyproject.toml, directory tree, Makefile
+- [x] 01-01-PLAN.md — Project scaffold: venv, pyproject.toml, directory tree, Makefile
 - [ ] 01-02-PLAN.md — AST/KCH hallucination detection pipeline and library stubs
 - [ ] 01-03-PLAN.md — PiT compliance validator, pre-commit hooks, GitHub Actions CI
 - [ ] 01-04-PLAN.md — Abstract execution interfaces (ABCs) and dataclasses

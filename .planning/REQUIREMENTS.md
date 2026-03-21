@@ -11,8 +11,8 @@
 
 - [ ] **QUAL-01**: CI/CD pipeline runs AST/KCH hallucination detection on every commit
 - [ ] **QUAL-02**: Point-in-Time compliance validator catches look-ahead bias in alpha code
-- [ ] **QUAL-03**: mypy strict + ruff linting pass on all source code
-- [ ] **QUAL-04**: Test coverage ≥ 80% enforced as a merge gate
+- [x] **QUAL-03**: mypy strict + ruff linting pass on all source code
+- [x] **QUAL-04**: Test coverage ≥ 80% enforced as a merge gate
 - [ ] **QUAL-05**: Pre-commit hooks run all quality gates locally before push
 - [ ] **QUAL-06**: GitHub Actions CI runs static analysis → unit tests → e2e in sequence
 
@@ -122,8 +122,8 @@
 |-------------|-------|--------|
 | QUAL-01 | Phase 1 | Pending |
 | QUAL-02 | Phase 1 | Pending |
-| QUAL-03 | Phase 1 | Pending |
-| QUAL-04 | Phase 1 | Pending |
+| QUAL-03 | Phase 1 | Complete |
+| QUAL-04 | Phase 1 | Complete |
 | QUAL-05 | Phase 1 | Pending |
 | QUAL-06 | Phase 1 | Pending |
 | EXEC-01 | Phase 1 | Pending |
