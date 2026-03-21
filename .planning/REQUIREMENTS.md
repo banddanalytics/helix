@@ -18,7 +18,7 @@
 
 ### Execution Abstraction
 
-- [ ] **EXEC-01**: Abstract interfaces (MarketDataProvider, OrderExecutor, PositionManager) define broker-agnostic contract
+- [x] **EXEC-01**: Abstract interfaces (MarketDataProvider, OrderExecutor, PositionManager) define broker-agnostic contract
 - [ ] **EXEC-02**: MT5Adapter implements all three interfaces with async wrappers
 - [ ] **EXEC-03**: SimAdapter provides identical interface for backtesting without Windows dependency
 - [ ] **EXEC-04**: SpreadModel tracks empirical spread distribution and suppresses signals where spread > 50% of expected profit
@@ -126,7 +126,7 @@
 | QUAL-04 | Phase 1 | Complete |
 | QUAL-05 | Phase 1 | Pending |
 | QUAL-06 | Phase 1 | Pending |
-| EXEC-01 | Phase 1 | Pending |
+| EXEC-01 | Phase 1 | Complete |
 | EXEC-02 | Phase 1 | Pending |
 | EXEC-03 | Phase 1 | Pending |
 | EXEC-04 | Phase 1 | Pending |

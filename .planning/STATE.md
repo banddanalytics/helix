@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 01-foundation-01-PLAN.md — project scaffold with Python 3.12 venv, pyproject.toml, full src/ and tests/ tree
-last_updated: "2026-03-21T19:13:07.596Z"
+stopped_at: Completed 01-foundation-04-PLAN.md — broker-agnostic ABCs, dataclasses, and contract tests
+last_updated: "2026-03-21T19:22:46.193Z"
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 7
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -47,6 +47,7 @@ Plan: 2 of 7
 
 *Updated after each plan completion*
 | Phase 01-foundation P01 | 23 | 2 tasks | 32 files |
+| Phase 01-foundation P04 | 30 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -64,6 +65,8 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: pyproject.toml is the single source of truth for all tool config (D-03) — no setup.cfg or tox.ini
 - [Phase 01-foundation]: Python 3.12 venv at .venv/ using /usr/bin/python3.12 — system Python 3.10 stays untouched (D-01, D-02)
 - [Phase 01-foundation]: Coverage gate at 80% branch coverage enforced in pytest addopts and tool.coverage.report (QUAL-04)
+- [Phase 01-foundation]: Three ABCs (MarketDataProvider, OrderExecutor, PositionManager) define broker-agnostic execution contract — all downstream code types against these, never MT5 directly (D-18, D-21)
+- [Phase 01-foundation]: Position dataclass is mutable (not frozen) — current_price and unrealized_pnl must update continuously during live trading
 
 ### Pending Todos
 
@@ -76,6 +79,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T19:13:07.593Z
-Stopped at: Completed 01-foundation-01-PLAN.md — project scaffold with Python 3.12 venv, pyproject.toml, full src/ and tests/ tree
+Last session: 2026-03-21T19:22:46.190Z
+Stopped at: Completed 01-foundation-04-PLAN.md — broker-agnostic ABCs, dataclasses, and contract tests
 Resume file: None
