@@ -9,7 +9,6 @@ import pytest
 
 from src.quality.ast_validator import KCHValidator, Violation
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -23,6 +22,8 @@ def stub_dir(tmp_path: Path) -> Path:
         textwrap.dedent("""\
             STUB: dict[str, dict[str, set[str]]] = {
                 "arcticdb": {
+                    "Arctic": {"uri", "encoding_version"},
+                    "get_library": {"library", "create_if_missing", "library_options"},
                     "write": {"symbol", "data", "metadata", "prune_previous_version"},
                     "read": {"symbol", "as_of"},
                     "append": {"symbol", "data", "metadata", "incomplete"},
@@ -69,9 +70,7 @@ def mt5_stub_dir(tmp_path: Path) -> Path:
 class TestPhantomFunctionDetection:
     """KCHValidator should flag calls to methods that don't exist in the stub."""
 
-    def test_phantom_function_is_critical(
-        self, stub_dir: Path, tmp_path: Path
-    ) -> None:
+    def test_phantom_function_is_critical(self, stub_dir: Path, tmp_path: Path) -> None:
         source = tmp_path / "sample.py"
         source.write_text(
             textwrap.dedent("""\
@@ -87,9 +86,7 @@ class TestPhantomFunctionDetection:
         assert len(phantom) >= 1
         assert any("upsert" in v.message for v in phantom)
 
-    def test_valid_function_no_violation(
-        self, stub_dir: Path, tmp_path: Path
-    ) -> None:
+    def test_valid_function_no_violation(self, stub_dir: Path, tmp_path: Path) -> None:
         source = tmp_path / "sample.py"
         source.write_text(
             textwrap.dedent("""\
@@ -125,9 +122,7 @@ class TestPhantomFunctionDetection:
         self, stub_dir: Path, tmp_path: Path
     ) -> None:
         source = tmp_path / "sample.py"
-        source.write_text(
-            "import arcticdb\nlib = None\nlib.upsert(symbol='X')\n"
-        )
+        source.write_text("import arcticdb\nlib = None\nlib.upsert(symbol='X')\n")
         validator = KCHValidator(stub_dir)
         violations = validator.validate_file(source)
         phantom = [v for v in violations if v.violation_type == "PHANTOM_FUNCTION"]
@@ -143,9 +138,7 @@ class TestPhantomFunctionDetection:
 class TestWrongParameterDetection:
     """KCHValidator should flag wrong kwarg names and suggest close matches."""
 
-    def test_wrong_parameter_is_warning(
-        self, stub_dir: Path, tmp_path: Path
-    ) -> None:
+    def test_wrong_parameter_is_warning(self, stub_dir: Path, tmp_path: Path) -> None:
         source = tmp_path / "sample.py"
         # "sym" is close to "symbol" — should get a suggestion
         source.write_text(
@@ -200,9 +193,7 @@ class TestWrongParameterDetection:
 class TestPhantomImportDetection:
     """KCHValidator should flag importing non-existent submodules of known libraries."""
 
-    def test_phantom_submodule_import(
-        self, stub_dir: Path, tmp_path: Path
-    ) -> None:
+    def test_phantom_submodule_import(self, stub_dir: Path, tmp_path: Path) -> None:
         # arcticdb.nonexistent_module is not a known submodule
         stub_file = stub_dir / "arcticdb_stubs.py"
         # Add submodule info to stub
@@ -218,9 +209,7 @@ class TestPhantomImportDetection:
             """)
         )
         source = tmp_path / "sample.py"
-        source.write_text(
-            "from arcticdb import NonExistentClass\n"
-        )
+        source.write_text("from arcticdb import NonExistentClass\n")
         validator = KCHValidator(stub_dir)
         violations = validator.validate_file(source)
         phantom = [v for v in violations if v.violation_type == "PHANTOM_IMPORT"]
@@ -236,9 +225,7 @@ class TestPhantomImportDetection:
 class TestCleanCodePassesValidation:
     """KCHValidator should return empty list for code using only valid APIs."""
 
-    def test_clean_code_zero_violations(
-        self, stub_dir: Path, tmp_path: Path
-    ) -> None:
+    def test_clean_code_zero_violations(self, stub_dir: Path, tmp_path: Path) -> None:
         source = tmp_path / "clean.py"
         source.write_text(
             textwrap.dedent("""\
@@ -257,7 +244,8 @@ class TestCleanCodePassesValidation:
         violations = validator.validate_file(source)
         # No PHANTOM_FUNCTION or WRONG_PARAMETER violations
         blocking = [
-            v for v in violations
+            v
+            for v in violations
             if v.violation_type in ("PHANTOM_FUNCTION", "WRONG_PARAMETER")
         ]
         assert len(blocking) == 0
@@ -282,9 +270,7 @@ class TestCleanCodePassesValidation:
         violations = validator.validate_file(source)
         assert violations == []
 
-    def test_empty_file_zero_violations(
-        self, stub_dir: Path, tmp_path: Path
-    ) -> None:
+    def test_empty_file_zero_violations(self, stub_dir: Path, tmp_path: Path) -> None:
         source = tmp_path / "empty.py"
         source.write_text("")
         validator = KCHValidator(stub_dir)
@@ -300,9 +286,7 @@ class TestCleanCodePassesValidation:
 class TestValidateDirectory:
     """KCHValidator.validate_directory() should scan all .py files recursively."""
 
-    def test_directory_scans_all_py_files(
-        self, stub_dir: Path, tmp_path: Path
-    ) -> None:
+    def test_directory_scans_all_py_files(self, stub_dir: Path, tmp_path: Path) -> None:
         src_dir = tmp_path / "src"
         src_dir.mkdir()
         (src_dir / "clean.py").write_text("import os\nx = 1\n")
@@ -314,9 +298,7 @@ class TestValidateDirectory:
         phantom = [v for v in violations if v.violation_type == "PHANTOM_FUNCTION"]
         assert len(phantom) >= 1
 
-    def test_directory_skips_non_py_files(
-        self, stub_dir: Path, tmp_path: Path
-    ) -> None:
+    def test_directory_skips_non_py_files(self, stub_dir: Path, tmp_path: Path) -> None:
         src_dir = tmp_path / "src"
         src_dir.mkdir()
         (src_dir / "README.md").write_text("# notes\nlib.upsert()\n")

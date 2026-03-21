@@ -90,7 +90,7 @@ class KCHValidator:
         # Give the module a unique name so it does not pollute sys.modules
         unique_name = f"_helix_stubs_{path.stem}_{id(path)}"
         sys.modules[unique_name] = module
-        spec.loader.exec_module(module)  # type: ignore[union-attr]
+        spec.loader.exec_module(module)
         return module
 
     # ------------------------------------------------------------------
@@ -119,7 +119,6 @@ class KCHValidator:
         violations: list[Violation] = []
         imported_libs = self._imported_known_libs(extractor.imports)
 
-        # Check function calls
         for call in extractor.function_calls:
             func_name: str = call["func"]
             kwargs: set[str] = call["kwargs"]
@@ -164,7 +163,7 @@ class KCHValidator:
             for lib in list(self._stubs.keys()):
                 prefix = lib + "."
                 if imp.startswith(prefix):
-                    name = imp[len(prefix):]
+                    name = imp[len(prefix) :]
                     known_names = self._submodules.get(lib, [])
                     if known_names and name not in known_names:
                         violations.append(

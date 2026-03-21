@@ -8,8 +8,9 @@ from __future__ import annotations
 
 STUB: dict[str, dict[str, set[str]]] = {
     "arcticdb": {
-        # Arctic top-level constructor
+        # Arctic top-level constructor and library accessor
         "Arctic": {"uri", "encoding_version"},
+        "get_library": {"library", "create_if_missing", "library_options"},
         # Library methods (via Library object)
         "write": {"symbol", "data", "metadata", "prune_previous_version"},
         "write_batch": {"payloads", "prune_previous_version"},
