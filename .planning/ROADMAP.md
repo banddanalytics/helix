@@ -30,11 +30,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. The SimAdapter and MT5Adapter are interchangeable behind the three abstract interfaces — calling code never references MT5 directly
   4. The ZeroMQ bridge streams live ticks from a Windows MT5 terminal to a Linux process over WireGuard without data loss
   5. SpreadModel suppresses a signal when the spread exceeds 50% of expected profit, and lot sizing correctly converts a Kelly fraction to valid MT5 volume increments
-**Plans:** 2/7 plans executed
+**Plans:** 3/7 plans executed
 
 Plans:
 - [x] 01-01-PLAN.md — Project scaffold: venv, pyproject.toml, directory tree, Makefile
-- [ ] 01-02-PLAN.md — AST/KCH hallucination detection pipeline and library stubs
+- [x] 01-02-PLAN.md — AST/KCH hallucination detection pipeline and library stubs
 - [ ] 01-03-PLAN.md — PiT compliance validator, pre-commit hooks, GitHub Actions CI
 - [x] 01-04-PLAN.md — Abstract execution interfaces (ABCs) and dataclasses
 - [ ] 01-05-PLAN.md — MT5Adapter and SimAdapter concrete implementations
@@ -93,7 +93,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 2/7 | In Progress|  |
+| 1. Foundation | 3/7 | In Progress|  |
 | 2. Data Engineering | 0/TBD | Not started | - |
 | 3. Alpha Engines | 0/TBD | Not started | - |
 | 4. Risk, IPC & Dashboard | 0/TBD | Not started | - |
