@@ -1,0 +1,42 @@
+"""Ground-truth xgboost API stub."""
+
+from __future__ import annotations
+
+STUB: dict[str, dict[str, set[str]]] = {
+    "xgboost": {
+        "XGBClassifier": {"n_estimators", "max_depth", "learning_rate", "objective",
+                          "booster", "n_jobs", "gamma", "min_child_weight",
+                          "max_delta_step", "subsample", "colsample_bytree",
+                          "colsample_bylevel", "colsample_bynode", "reg_alpha",
+                          "reg_lambda", "scale_pos_weight", "base_score",
+                          "random_state", "missing", "num_parallel_tree",
+                          "use_label_encoder", "eval_metric", "early_stopping_rounds",
+                          "callbacks", "verbosity", "device", "tree_method"},
+        "XGBRegressor": {"n_estimators", "max_depth", "learning_rate", "objective",
+                         "booster", "n_jobs", "gamma", "min_child_weight",
+                         "subsample", "colsample_bytree", "reg_alpha", "reg_lambda",
+                         "random_state", "missing", "eval_metric",
+                         "early_stopping_rounds", "callbacks", "verbosity",
+                         "device", "tree_method"},
+        "DMatrix": {"data", "label", "missing", "weight", "silent", "feature_names",
+                    "feature_types", "nthread", "group", "qid", "label_lower_bound",
+                    "label_upper_bound", "feature_weights", "enable_categorical"},
+        "train": {"params", "dtrain", "num_boost_round", "evals", "obj", "feval",
+                  "maximize", "early_stopping_rounds", "evals_result",
+                  "verbose_eval", "xgb_model", "callbacks"},
+        "cv": {"params", "dtrain", "num_boost_round", "nfold", "stratified",
+               "folds", "metrics", "obj", "feval", "maximize", "early_stopping_rounds",
+               "fpreproc", "as_pandas", "verbose_eval", "show_stdv", "seed",
+               "callbacks", "shuffle"},
+        "fit": {"X", "y", "sample_weight", "base_margin", "eval_set",
+                "verbose", "xgb_model", "sample_weight_eval_set",
+                "base_margin_eval_set", "feature_weights"},
+        "predict": {"X", "output_margin", "ntree_limit", "validate_features",
+                    "base_margin", "iteration_range"},
+        "predict_proba": {"X", "validate_features", "base_margin", "iteration_range"},
+        "feature_importances_": set(),
+        "get_booster": set(),
+        "save_model": {"fname"},
+        "load_model": {"fname"},
+    }
+}

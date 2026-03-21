@@ -1,0 +1,37 @@
+"""Ground-truth statsmodels API stub — focused on cointegration/VECM used by Helix."""
+
+from __future__ import annotations
+
+STUB: dict[str, dict[str, set[str]]] = {
+    "statsmodels": {
+        "coint_johansen": {"endog", "det_order", "k_ar_diff"},
+        "VECM": {"endog", "exog", "exog_coint", "dates", "freq", "missing",
+                 "k_ar_diff", "coint_rank", "deterministic", "seasons",
+                 "first_season", "alpha"},
+        "select_coint_rank": {"endog", "det_order", "k_ar_diff", "method",
+                              "signif"},
+        "select_order": {"data", "maxlags", "deterministic", "seasons",
+                         "exog", "exog_coint"},
+        "fit": {"method", "maxiter", "full_output", "disp", "start_params",
+                "maxfun", "cov_type"},
+        "predict": {"steps", "alpha"},
+        "summary": set(),
+        "plot_data": {"fig", "figsize"},
+        "irf": {"periods", "var_decomp", "var_order"},
+        "fevd": {"periods", "var_decomp"},
+        "OLS": {"endog", "exog", "missing", "hasconst"},
+        "GLS": {"endog", "exog", "sigma", "missing"},
+        "WLS": {"endog", "exog", "weights", "missing"},
+        "ARIMA": {"endog", "exog", "order", "seasonal_order", "trend",
+                  "measurement_error", "enforce_stationarity",
+                  "enforce_invertibility", "hamilton_representation",
+                  "concentrate_scale", "trend_offset", "use_exact_diffuse",
+                  "dates", "freq", "missing"},
+        "adfuller": {"x", "maxlag", "regression", "autolag",
+                     "store", "regresults"},
+        "coint": {"y0", "y1", "trend", "method", "maxlag", "autolag"},
+        "acf": {"x", "nlags", "qstat", "fft", "alpha", "missing"},
+        "pacf": {"x", "nlags", "method", "alpha"},
+        "acovf": {"x", "demean", "adjusted", "fft", "missing", "nlag"},
+    }
+}

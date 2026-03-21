@@ -1,0 +1,31 @@
+"""Ground-truth hmmlearn API stub."""
+
+from __future__ import annotations
+
+STUB: dict[str, dict[str, set[str]]] = {
+    "hmmlearn": {
+        "GaussianHMM": {"n_components", "covariance_type", "min_covar",
+                        "startprob_prior", "transmat_prior", "means_prior",
+                        "means_weight", "covars_prior", "covars_weight",
+                        "algorithm", "random_state", "n_iter", "tol",
+                        "verbose", "params", "init_params", "implementation"},
+        "fit": {"X", "lengths"},
+        "predict": {"X", "lengths"},
+        "predict_proba": {"X", "lengths"},
+        "decode": {"X", "lengths", "algorithm"},
+        "score": {"X", "lengths"},
+        "score_samples": {"X", "lengths"},
+        "sample": {"n_samples", "random_state", "currstate"},
+        "monitor_": set(),
+        "startprob_": set(),
+        "transmat_": set(),
+        "means_": set(),
+        "covars_": set(),
+        "GMMHMM": {"n_components", "n_mix", "covariance_type", "algorithm",
+                   "random_state", "n_iter", "tol", "verbose", "params",
+                   "init_params"},
+        "MultinomialHMM": {"n_components", "startprob_prior", "transmat_prior",
+                           "algorithm", "random_state", "n_iter", "tol",
+                           "verbose", "params", "init_params"},
+    }
+}
