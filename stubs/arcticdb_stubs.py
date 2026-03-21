@@ -34,7 +34,6 @@ STUB: dict[str, dict[str, set[str]]] = {
         "defragment_symbol_data": {"symbol", "config"},
         "compact_incomplete": {"symbol", "convert_int_to_float", "sparsify_floats"},
         "sort_and_finalize_staged_data": {"symbol", "delete_staged_data_on_failure"},
-        "get_library": {"library", "create_if_missing", "library_options"},
         "create_library": {"library", "library_options"},
         "delete_library": {"library"},
         "list_libraries": set(),

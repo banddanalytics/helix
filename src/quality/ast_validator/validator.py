@@ -14,7 +14,7 @@ import importlib.util
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from types import ModuleType
 
 from src.quality.ast_validator.extractor import ASTExtractor
 
@@ -26,7 +26,8 @@ class Violation:
     file: str
     line: int
     severity: str  # "CRITICAL" | "WARNING" | "INFO"
-    violation_type: str  # "PHANTOM_FUNCTION" | "WRONG_PARAMETER" | "PHANTOM_IMPORT" | "DEPRECATED_API"
+    # "PHANTOM_FUNCTION" | "WRONG_PARAMETER" | "PHANTOM_IMPORT" | "DEPRECATED_API"
+    violation_type: str
     message: str
     suggestion: str | None = field(default=None)
 
@@ -81,7 +82,7 @@ class KCHValidator:
                     self._submodules.setdefault(lib, []).extend(submodules)
 
     @staticmethod
-    def _import_stub_file(path: Path) -> Any:
+    def _import_stub_file(path: Path) -> ModuleType:
         """Dynamically import a stub file by path."""
         spec = importlib.util.spec_from_file_location(path.stem, path)
         if spec is None or spec.loader is None:
@@ -205,9 +206,12 @@ class KCHValidator:
         for lib in self._stubs:
             for imp in imports:
                 # Match "arcticdb" in "arcticdb", "arcticdb.Arctic", etc.
-                if imp == lib or imp.startswith(lib + ".") or imp.startswith(lib + " "):
-                    if lib not in matched:
-                        matched.append(lib)
+                if (
+                    imp == lib
+                    or imp.startswith(lib + ".")
+                    or imp.startswith(lib + " ")
+                ) and lib not in matched:
+                    matched.append(lib)
         return matched
 
     @staticmethod
