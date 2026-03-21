@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 01-foundation-02-PLAN.md — AST/KCH validator with 8 library stubs and CLI
-last_updated: "2026-03-21T19:25:35.136Z"
+stopped_at: Completed 01-foundation-03-PLAN.md — PiT validator, pre-commit hooks, and GitHub Actions CI
+last_updated: "2026-03-21T19:27:11.056Z"
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 7
-  completed_plans: 3
+  completed_plans: 4
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 ## Current Position
 
 Phase: 01 (foundation) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 
 ## Performance Metrics
 
@@ -50,6 +50,7 @@ Plan: 4 of 7
 | Phase 01-foundation P04 | 30 | 2 tasks | 3 files |
 | Phase 01-foundation P02 | 8 | 2 tasks | 16 files |
 | Phase 01 P02 | 14 | 2 tasks | 18 files |
+| Phase 01-foundation P03 | 20 | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -71,6 +72,8 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: Position dataclass is mutable (not frozen) — current_price and unrealized_pnl must update continuously during live trading
 - [Phase 01-foundation]: Stubs use flat dict {lib -> {func -> set_of_kwargs}} — simple to load and compare against extracted calls
 - [Phase 01-foundation]: arcticdb stub intentionally excludes upsert as the canonical phantom-function test case (QUAL-01)
+- [Phase 01-foundation]: Pre-commit uses local mypy with system language to access project venv deps (avoids duplicating additional_dependencies)
+- [Phase 01-foundation]: pytest and validators excluded from pre-commit per D-07/D-08/D-09 — CI only gates
 
 ### Pending Todos
 
@@ -83,6 +86,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T19:25:35.133Z
-Stopped at: Completed 01-foundation-02-PLAN.md — AST/KCH validator with 8 library stubs and CLI
+Last session: 2026-03-21T19:27:11.053Z
+Stopped at: Completed 01-foundation-03-PLAN.md — PiT validator, pre-commit hooks, and GitHub Actions CI
 Resume file: None
