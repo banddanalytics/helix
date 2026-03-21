@@ -1,0 +1,62 @@
+[project]
+name = "helix"
+version = "0.1.0"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=src --cov-report=term-missing --cov-branch --cov-fail-under=80 -v"
+# cov-fail-under = 80 — QUAL-04 merge gate: enforce 80% branch coverage on every run
+asyncio_mode = "auto"
+markers = [
+    "pit_check: marks tests as Point-in-Time compliance checks",
+]
+
+[tool.mypy]
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+packages = ["src"]
+
+[[tool.mypy.overrides]]
+module = [
+    "MetaTrader5.*",
+    "hmmlearn.*",
+    "arch.*",
+    "vectorbt.*",
+    "arcticdb.*",
+    "nats.*",
+    "xgboost.*",
+    "cvxpy.*",
+    "msgpack.*",
+    "zmq.*",
+    "statsmodels.*",
+]
+ignore_missing_imports = true
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "N", "UP", "B", "SIM", "ANN", "S", "C4", "DTZ", "RUF"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "ANN"]
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+    "pass",
+]

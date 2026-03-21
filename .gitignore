@@ -19,7 +19,7 @@ __pycache__/
 
 # ArcticDB / data
 *.lmdb/
-data/
+/data/
 tick_data/
 *.db
 
