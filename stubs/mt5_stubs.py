@@ -1,7 +1,8 @@
 """Ground-truth MT5 API whitelist — hand-written because MetaTrader5 is Windows-only.
 
-MT5 Python API cannot be introspected on Linux (Wine does not support the named-pipe IPC).
-This stub reflects the real MetaTrader5 package as of version 5.0.45.
+MT5 Python API cannot be introspected on Linux (Wine does not support the
+named-pipe IPC). This stub reflects the real MetaTrader5 package as of version
+5.0.45.
 """
 
 from __future__ import annotations
