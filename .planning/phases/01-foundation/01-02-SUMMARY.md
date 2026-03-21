@@ -42,11 +42,11 @@ decisions:
   - StubGenerator uses importlib + inspect.signature() for auto-generation of real library stubs
   - CLI outputs JSON array to stdout for machine-parseable violation reports
 metrics:
-  duration: 8 minutes
-  completed: 2026-03-21T19:22:32Z
+  duration: 14 minutes
+  completed: 2026-03-21T22:24:00Z
   tasks_completed: 2
   files_created: 15
-  files_modified: 1
+  files_modified: 3
 ---
 
 # Phase 01 Plan 02: AST/KCH Hallucination Detection Pipeline Summary
@@ -85,9 +85,23 @@ python scripts/ast_validator.py --stubs stubs/ --source src/ → [] exit 0
 **1. [Rule 1 - Bug] arcticdb stub missing Arctic() and get_library() methods**
 - **Found during:** Task 1 GREEN phase — test_valid_function_no_violation failed
 - **Issue:** The KCH validator flagged `arcticdb.Arctic(...)` and `store.get_library(...)` as PHANTOM_FUNCTION because these names were absent from the initial arcticdb stub
-- **Fix:** Added `Arctic` and `get_library` to `stubs/arcticdb_stubs.py`; the linter also sync'd the test fixture
+- **Fix:** Added `Arctic` and `get_library` to `stubs/arcticdb_stubs.py`; updated test fixture to match
 - **Files modified:** `stubs/arcticdb_stubs.py`, `tests/quality/test_kch_validator.py`
-- **Commit:** 3f43549
+- **Commit:** 3f43549, 700f080
+
+**2. [Rule 1 - Bug] Unused type: ignore comment in validator.py**
+- **Found during:** mypy --strict verification
+- **Issue:** `spec.loader.exec_module(module)  # type: ignore[union-attr]` was flagged as unused-ignore by mypy strict
+- **Fix:** Removed the type: ignore comment (mypy no longer reports union-attr here)
+- **Files modified:** `src/quality/ast_validator/validator.py`
+- **Commit:** 700f080
+
+**3. [Rule 2 - Cleanup] Lint and stub improvements**
+- **Found during:** Post-implementation cleanup
+- **Issue:** scripts/ast_validator.py had an E402 linting issue; nats_stubs.py was missing publish params
+- **Fix:** Added `# noqa: E402` to sys.path insert; added `timeout` and `stream` kwargs to nats publish stub
+- **Files modified:** `scripts/ast_validator.py`, `stubs/nats_stubs.py`, `stubs/mt5_stubs.py`
+- **Commit:** 86304db
 
 ## Known Stubs
 
