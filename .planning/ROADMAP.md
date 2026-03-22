@@ -69,7 +69,17 @@ Plans:
   2. The cointegration engine fires entry signals at z-score ±2.0, hard stops at ±4.0, and correctly tracks the 504-bar rolling hedge ratio for all three configured pairs
   3. The carry provider suppresses signals on symbols where spread cost exceeds the carry differential, and the ML ensemble completes a walk-forward run (756-bar train, 21-bar step) with SHAP output
   4. Regime gates activate the correct strategy set: ML and carry in Trending, cointegration in Mean-Reverting, and reduce-only in Crisis
-**Plans**: TBD
+**Plans:** 8 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Wave 0 setup: install shap, signal types contract, test scaffolds
+- [ ] 03-02-PLAN.md — HMM-GARCH regime detector: emissions, Viterbi, online filter
+- [ ] 03-03-PLAN.md — Regime recalibration scheduler with two-gate validation
+- [ ] 03-04-PLAN.md — Johansen cointegration engine: trace test, hedge ratio, z-score signals
+- [ ] 03-05-PLAN.md — Carry signal provider: swap-based ranking with spread filter
+- [ ] 03-06-PLAN.md — ML 27-feature Numba pipeline and FeatureBuilder
+- [ ] 03-07-PLAN.md — Walk-forward XGBoost+RF ensemble with SHAP analysis
+- [ ] 03-08-PLAN.md — RegimeOrchestrator: strategy gating, hysteresis, signal persistence
 
 ### Phase 4: Risk, IPC & Dashboard
 **Goal**: All open positions are subject to live CVaR and Kelly sizing constraints, telemetry flows end-to-end from engine to browser, and the dashboard displays real-time system state
@@ -103,6 +113,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/7 | In Progress|  |
 | 2. Data Engineering | 6/6 | Complete   | 2026-03-22 |
-| 3. Alpha Engines | 0/TBD | Not started | - |
+| 3. Alpha Engines | 0/8 | Not started | - |
 | 4. Risk, IPC & Dashboard | 0/TBD | Not started | - |
 | 5. Integration & Production | 0/TBD | Not started | - |
