@@ -124,18 +124,24 @@ def compute_metrics(
 def run_regime_detection(
     close: np.ndarray,
 ) -> np.ndarray:
-    """Fit HMM-GARCH and return Viterbi regime states."""
+    """Fit HMM-GARCH and return Viterbi regime states.
+
+    Rescales returns to basis points (×10000) before GARCH fitting
+    because the arch library optimizer requires values between 1 and
+    1000 — raw hourly FX returns (~1e-7) cause convergence failure.
+    """
     from src.alpha.regime.hmm_garch import HMMGARCHRegimeDetector
 
     log_returns = np.diff(np.log(close))
+    scaled_returns = log_returns * 10_000  # basis points for GARCH convergence
     detector = HMMGARCHRegimeDetector()
-    success = detector.fit(log_returns)
+    success = detector.fit(scaled_returns)
 
     if not success:
         logger.warning("Regime detection failed — using uniform state 0")
         return np.zeros(len(log_returns), dtype=int)
 
-    states = detector.predict_viterbi(log_returns)
+    states = detector.predict_viterbi(scaled_returns)
     return states
 
 
