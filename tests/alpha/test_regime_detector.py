@@ -2,7 +2,124 @@
 
 from __future__ import annotations
 
+import math
+
+import numpy as np
 import pytest
+import scipy.stats
+
+
+# ---------------------------------------------------------------------------
+# Task 1 tests: GARCH emissions and Viterbi decoder
+# ---------------------------------------------------------------------------
+
+
+def test_garch_params_unconditional_variance() -> None:
+    """GARCHParams.unconditional_variance = omega / (1 - alpha - beta)."""
+    from src.alpha.regime.emissions import GARCHParams
+
+    params = GARCHParams(mu=0.0, omega=0.0001, alpha=0.1, beta=0.8)
+    expected = 0.0001 / (1 - 0.1 - 0.8)
+    assert math.isclose(params.unconditional_variance, expected, rel_tol=1e-9)
+
+
+def test_garch_params_is_stationary() -> None:
+    """GARCHParams.is_stationary returns True iff alpha + beta < 1."""
+    from src.alpha.regime.emissions import GARCHParams
+
+    stationary = GARCHParams(mu=0.0, omega=0.0001, alpha=0.1, beta=0.8)
+    non_stationary = GARCHParams(mu=0.0, omega=0.0001, alpha=0.6, beta=0.5)
+    assert stationary.is_stationary is True
+    assert non_stationary.is_stationary is False
+
+
+def test_garch_emission_prob_matches_scipy() -> None:
+    """garch_emission_prob log-probs match scipy.stats.norm at t=0."""
+    from src.alpha.regime.emissions import GARCHParams, garch_emission_prob
+
+    rng = np.random.default_rng(0)
+    returns = rng.normal(0.0, 0.01, size=50)
+    params = GARCHParams(mu=0.0, omega=0.0001, alpha=0.05, beta=0.90)
+
+    log_probs = garch_emission_prob(returns, params)
+
+    # t=0: sigma2 = unconditional variance
+    sigma2_0 = params.unconditional_variance
+    expected_lp_0 = scipy.stats.norm.logpdf(returns[0], loc=0.0, scale=math.sqrt(sigma2_0))
+    assert math.isclose(log_probs[0], expected_lp_0, rel_tol=1e-6)
+    assert len(log_probs) == len(returns)
+    # All log-probs must be finite
+    assert np.all(np.isfinite(log_probs))
+
+
+def test_garch_variance_recursion_finite_positive() -> None:
+    """GARCH variance recursion produces finite positive sigma^2 values."""
+    from src.alpha.regime.emissions import GARCHParams, garch_emission_prob
+
+    rng = np.random.default_rng(1)
+    returns = rng.normal(0.0, 0.02, size=200)
+    params = GARCHParams(mu=0.0, omega=5e-5, alpha=0.08, beta=0.87)
+
+    log_probs = garch_emission_prob(returns, params)
+
+    assert np.all(np.isfinite(log_probs)), "All log-probs must be finite"
+    assert len(log_probs) == 200
+
+
+def test_viterbi_decode_toy_example() -> None:
+    """viterbi_decode returns correct optimal path on 3-state toy HMM."""
+    from src.alpha.regime.viterbi import viterbi_decode
+
+    # 3 states, T=5: deterministic toy HMM
+    # State 0 → stay in 0; emission only good in state 0 for obs 0, state 1 for obs 1
+    n_states = 3
+    T = 5
+
+    # Transition: strong self-loops
+    transmat = np.array([
+        [0.9, 0.05, 0.05],
+        [0.05, 0.9, 0.05],
+        [0.05, 0.05, 0.9],
+    ])
+    log_transmat = np.log(transmat)
+
+    startprob = np.array([0.8, 0.1, 0.1])
+    log_startprob = np.log(startprob)
+
+    # Emission log-probs: each observation strongly favors state 0
+    log_emission_probs = np.full((T, n_states), -10.0)
+    log_emission_probs[:, 0] = 0.0  # state 0 always very likely
+
+    states = viterbi_decode(log_emission_probs, log_transmat, log_startprob)
+
+    assert len(states) == T
+    assert np.all(states == 0), f"Expected all-zero path, got {states}"
+
+
+def test_viterbi_decode_output_length() -> None:
+    """viterbi_decode output length equals input T."""
+    from src.alpha.regime.viterbi import viterbi_decode
+
+    T = 100
+    n_states = 3
+    rng = np.random.default_rng(42)
+
+    log_emission_probs = rng.normal(-5, 1, size=(T, n_states))
+    transmat = np.full((n_states, n_states), 1.0 / n_states)
+    log_transmat = np.log(transmat)
+    startprob = np.full(n_states, 1.0 / n_states)
+    log_startprob = np.log(startprob)
+
+    states = viterbi_decode(log_emission_probs, log_transmat, log_startprob)
+
+    assert len(states) == T
+    assert states.dtype in (np.int32, np.int64, int)
+    assert np.all((states >= 0) & (states < n_states))
+
+
+# ---------------------------------------------------------------------------
+# Task 2 tests: HMMGARCHRegimeDetector and OnlineRegimeFilter
+# ---------------------------------------------------------------------------
 
 
 @pytest.mark.skip(reason="Stub — implementation in plan 03-02")
