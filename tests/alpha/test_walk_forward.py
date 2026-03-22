@@ -8,6 +8,7 @@ import pytest
 from src.alpha.ml_price_momentum.evaluation.cost_adjusted_metrics import (
     cost_adjusted_sharpe,
     gross_sharpe,
+    timeframe_to_bars_per_year,
 )
 from src.alpha.ml_price_momentum.models.walk_forward import (
     WalkForwardConfig,
@@ -15,7 +16,9 @@ from src.alpha.ml_price_momentum.models.walk_forward import (
 )
 
 
-def _make_synthetic_data(n_samples: int = 2000, n_features: int = 5) -> tuple[np.ndarray, np.ndarray]:
+def _make_synthetic_data(
+    n_samples: int = 2000, n_features: int = 5
+) -> tuple[np.ndarray, np.ndarray]:
     """Generate synthetic binary classification data."""
     rng = np.random.default_rng(42)
     X = rng.standard_normal((n_samples, n_features)).astype(np.float32)
@@ -82,9 +85,41 @@ def test_cost_adjusted_sharpe() -> None:
     returns = np.array([0.01, 0.02, 0.015, 0.012, 0.008])
     costs = np.array([0.001, 0.001, 0.001, 0.001, 0.001])
 
-    net_sr = cost_adjusted_sharpe(returns, costs)
-    gross_sr = gross_sharpe(returns)
+    bpy = timeframe_to_bars_per_year("1d")
+    net_sr = cost_adjusted_sharpe(returns, costs, bars_per_year=bpy)
+    gross_sr = gross_sharpe(returns, bars_per_year=bpy)
 
     assert net_sr < gross_sr, (
         f"Expected cost_adjusted_sharpe ({net_sr:.4f}) < gross_sharpe ({gross_sr:.4f})"
     )
+
+
+def test_timeframe_to_bars_per_year_known_values() -> None:
+    """Verify bars-per-year mapping for all supported Forex timeframes."""
+    assert timeframe_to_bars_per_year("1m") == 362_880
+    assert timeframe_to_bars_per_year("5m") == 72_576
+    assert timeframe_to_bars_per_year("15m") == 24_192
+    assert timeframe_to_bars_per_year("1h") == 6_048
+    assert timeframe_to_bars_per_year("4h") == 1_512
+    assert timeframe_to_bars_per_year("1d") == 252
+    assert timeframe_to_bars_per_year("1D") == 252  # case-insensitive
+    assert timeframe_to_bars_per_year(" 4H ") == 1_512  # whitespace stripped
+
+
+def test_timeframe_to_bars_per_year_unknown_raises() -> None:
+    """Unknown timeframe must raise ValueError with supported list."""
+    with pytest.raises(ValueError, match="Unknown timeframe"):
+        timeframe_to_bars_per_year("3h")
+
+
+def test_sharpe_scales_with_bars_per_year() -> None:
+    """Sharpe ratio scales by sqrt(bars_per_year) for identical returns."""
+    returns = np.array([0.01, 0.02, 0.015, 0.012, 0.008])
+
+    sharpe_daily = gross_sharpe(returns, bars_per_year=252)
+    sharpe_hourly = gross_sharpe(returns, bars_per_year=6_048)
+
+    expected_ratio = np.sqrt(6_048 / 252)
+    actual_ratio = sharpe_hourly / sharpe_daily
+
+    assert actual_ratio == pytest.approx(expected_ratio, rel=1e-6)
