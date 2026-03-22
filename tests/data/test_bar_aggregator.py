@@ -1,4 +1,5 @@
 """Tests for bar aggregation from ticks with session tagging (DATA-03)."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -78,9 +79,9 @@ def test_all_six_timeframes_produced() -> None:
     )
     ticks["ask"] = ticks["bid"] + ticks["spread"]
 
-    import arcticdb as adb
+    import tempfile
 
-    import tempfile, os
+    import arcticdb as adb
 
     with tempfile.TemporaryDirectory() as tmp:
         store_uri = f"lmdb://{tmp}/arctic_data"
@@ -101,12 +102,15 @@ def test_all_six_timeframes_produced() -> None:
 
 
 def test_session_tags() -> None:
-    """DATA-03: session column is int8 — 0=Asian(00-08), 1=London(08-13), 2=Overlap(13-16), 3=NY(16-21)."""
+    """DATA-03: session column is int8.
+
+    0=Asian(00-08), 1=London(08-13), 2=Overlap(13-16), 3=NY(16-21).
+    """
     from src.data.bar_aggregator import aggregate_bars
 
     # Ticks at representative hours: 3=Asian, 10=London, 14=Overlap, 18=NY, 22=Asian
     hour_expected = [
-        (3, 0),   # Asian
+        (3, 0),  # Asian
         (10, 1),  # London
         (14, 2),  # Overlap
         (18, 3),  # New York
@@ -124,7 +128,9 @@ def test_session_tags() -> None:
 
     bars = aggregate_bars(ticks, "1h")
 
-    for bar_time, (hour, expected_session) in zip(bars.index, hour_expected):
+    for bar_time, (hour, expected_session) in zip(
+        bars.index, hour_expected, strict=False
+    ):
         actual = int(bars.loc[bar_time, "session"])
         assert actual == expected_session, (
             f"Hour {hour}: expected session {expected_session}, got {actual}"
@@ -159,11 +165,12 @@ def test_spread_avg_and_max_per_bar() -> None:
 
 
 def test_bar_symbol_naming() -> None:
-    """DATA-03: Bars written to forex_bars with symbol format EURUSD_1m, EURUSD_5m, etc."""
-    from src.data.bar_aggregator import BarAggregator
+    """DATA-03: Bars written to forex_bars with symbol format EURUSD_1m, etc."""
+    import tempfile
 
     import arcticdb as adb
-    import tempfile
+
+    from src.data.bar_aggregator import BarAggregator
 
     with tempfile.TemporaryDirectory() as tmp:
         store_uri = f"lmdb://{tmp}/arctic_data"
@@ -194,7 +201,7 @@ def test_bar_symbol_naming() -> None:
 
 
 def test_bar_columns_match_schema() -> None:
-    """DATA-03: aggregate_bars output columns match FOREX_BAR_COLUMNS from schemas.py."""
+    """DATA-03: aggregate_bars output columns match FOREX_BAR_COLUMNS."""
     from src.data.bar_aggregator import aggregate_bars
     from src.data.schemas import FOREX_BAR_COLUMNS
 

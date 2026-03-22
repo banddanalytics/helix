@@ -4,6 +4,7 @@ Per D-05: 6 timeframes: 1m, 5m, 15m, 1h, 4h, 1d.
 Per D-06: Session tags: 0=Asian(00-08), 1=London(08-13), 2=Overlap(13-16), 3=NY(16-21).
 Bars written to forex_bars library with symbol format {SYMBOL}_{timeframe}.
 """
+
 from __future__ import annotations
 
 import logging
@@ -39,33 +40,36 @@ def hour_to_session(hour: int) -> int:
     Hours 21-24 map to Asian (pre-open).
     """
     if 0 <= hour < 8:
-        return 0   # Asian
+        return 0  # Asian
     if 8 <= hour < 13:
-        return 1   # London
+        return 1  # London
     if 13 <= hour < 16:
-        return 2   # Overlap
+        return 2  # Overlap
     if 16 <= hour < 21:
-        return 3   # New York
-    return 0       # Asian (21:00-00:00)
+        return 3  # New York
+    return 0  # Asian (21:00-00:00)
 
 
 def aggregate_bars(ticks_df: pd.DataFrame, rule: str) -> pd.DataFrame:
     """Aggregate tick DataFrame into OHLCV bars at given pandas resample rule.
 
     Args:
-        ticks_df: DataFrame with DatetimeIndex and columns: bid, ask, spread, tick_volume.
+        ticks_df: DataFrame with DatetimeIndex and columns:
+            bid, ask, spread, tick_volume.
         rule: Pandas resample rule string (e.g., '1min', '5min', '1h', '1D').
 
     Returns:
-        DataFrame with columns: open, high, low, close, tick_volume, spread_avg, spread_max, session.
+        DataFrame with columns: open, high, low, close, tick_volume,
+            spread_avg, spread_max, session.
     """
     mid = (ticks_df["bid"] + ticks_df["ask"]) / 2.0
     bars = mid.resample(rule).ohlc()
     bars["tick_volume"] = ticks_df["tick_volume"].resample(rule).sum()
     bars["spread_avg"] = ticks_df["spread"].resample(rule).mean()
     bars["spread_max"] = ticks_df["spread"].resample(rule).max()
+    dti = pd.DatetimeIndex(bars.index)
     bars["session"] = pd.array(
-        [hour_to_session(h) for h in bars.index.hour],
+        [hour_to_session(h) for h in dti.hour],
         dtype=pd.Int8Dtype(),
     ).astype(np.int8)
     # Drop bars with no trades (NaN open)
@@ -74,7 +78,8 @@ def aggregate_bars(ticks_df: pd.DataFrame, rule: str) -> pd.DataFrame:
     actual_cols = set(bars.columns)
     if actual_cols != expected_cols:
         raise ValueError(
-            f"Bar schema drift: expected {sorted(expected_cols)}, got {sorted(actual_cols)}"
+            f"Bar schema drift: expected {sorted(expected_cols)}, "
+            f"got {sorted(actual_cols)}"
         )
     return bars
 
@@ -109,8 +114,14 @@ class BarAggregator:
                 result[tf_label] = len(bars)
                 logger.info(
                     "Aggregated %d %s bars for %s",
-                    len(bars), tf_label, symbol,
-                    extra={"symbol": symbol, "timeframe": tf_label, "bar_count": len(bars)},
+                    len(bars),
+                    tf_label,
+                    symbol,
+                    extra={
+                        "symbol": symbol,
+                        "timeframe": tf_label,
+                        "bar_count": len(bars),
+                    },
                 )
 
         return result

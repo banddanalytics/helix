@@ -3,6 +3,7 @@
 Per D-01: LMDB backend at ./arctic_data for both dev and production.
 Per D-02: Same path in dev, staging, production — no env var switching in Phase 2.
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -23,7 +24,7 @@ def get_store(uri: str = "lmdb://./arctic_data") -> adb.Arctic:
     Uses module-level singleton (not lru_cache) so tests can override via
     reset_store() with a tmp path.
     """
-    global _STORE  # noqa: PLW0603
+    global _STORE
     if _STORE is None:
         _STORE = adb.Arctic(uri)
     return _STORE
@@ -31,7 +32,7 @@ def get_store(uri: str = "lmdb://./arctic_data") -> adb.Arctic:
 
 def reset_store() -> None:
     """Clear cached store instance. Used by tests to inject tmp paths."""
-    global _STORE  # noqa: PLW0603
+    global _STORE
     _STORE = None
 
 
@@ -50,4 +51,4 @@ def initialize_store(uri: str = "lmdb://./arctic_data") -> adb.Arctic:
 def get_library(name: str, *, uri: str = "lmdb://./arctic_data") -> adb.Library:
     """Get a library by name. Raises KeyError if library does not exist."""
     store = get_store(uri)
-    return store.get_library(name)  # type: ignore[return-value]
+    return store.get_library(name)
