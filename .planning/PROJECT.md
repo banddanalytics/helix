@@ -12,7 +12,11 @@ A fully automated, broker-agnostic trading system where every signal passes thro
 
 ### Validated
 
-(None yet — ship to validate)
+**Data Engineering** *(Validated in Phase 02: data-engineering)*
+- [x] ArcticDB dual-schema storage (Forex tick/bar + MBO stub for Stage B)
+- [x] Point-in-Time data manager preventing all 5 look-ahead bias vectors
+- [x] VectorBT Pro + Numba JIT backtesting with spread cost parameter
+- [x] Forex tick ingestion, bar aggregation (6 timeframes), session tagging, swap snapshots
 
 ### Active
 
@@ -22,12 +26,6 @@ A fully automated, broker-agnostic trading system where every signal passes thro
 - [ ] MT5 concrete adapter with async wrappers, spread model, lot sizing, swap rate extraction
 - [ ] SimAdapter for backtesting and CI without Windows MT5 dependency
 - [ ] ZeroMQ bridge: Windows MT5 ↔ Linux alpha engines over WireGuard VPN
-
-**Data Engineering**
-- [ ] ArcticDB dual-schema storage (Forex tick/bar + MBO stub for Stage B)
-- [ ] Point-in-Time data manager preventing all 5 look-ahead bias vectors
-- [ ] VectorBT Pro + Numba JIT backtesting with spread cost parameter
-- [ ] Forex tick ingestion, bar aggregation (6 timeframes), session tagging, swap snapshots
 
 **Alpha Engines**
 - [ ] HMM-GARCH regime detector (3 states: Trending, Mean-Reverting, Crisis)
@@ -86,7 +84,7 @@ A fully automated, broker-agnostic trading system where every signal passes thro
 | NATS JetStream over Kafka | Single-node simplicity for Stage A, hub+leaf scales to Stage B without code changes | — Pending |
 
 ---
-*Last updated: 2026-03-20 after initialization*
+*Last updated: 2026-03-22 after Phase 02: data-engineering — ArcticDB store, PiT manager, tick writer, bar aggregator, and Numba backtesting stack complete. 36 tests passing.*
 
 ## Evolution
 
