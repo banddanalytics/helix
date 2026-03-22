@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-07-PLAN.md — walk-forward XGBoost/RF ensemble, SHAP analysis, cost-adjusted metrics
-last_updated: "2026-03-22T15:22:12.131Z"
+stopped_at: Completed 03-08-PLAN.md — RegimeOrchestrator with hysteresis, CrossAssetCache, and ArcticDB signal persistence
+last_updated: "2026-03-22T15:28:55.566Z"
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 21
-  completed_plans: 20
+  completed_plans: 21
 ---
 
 # Project State
@@ -65,6 +65,7 @@ Plan: 8 of 8
 | Phase 03-alpha-engines P05 | 136 | 2 tasks | 5 files |
 | Phase 03-alpha-engines P06 | 533 | 2 tasks | 10 files |
 | Phase 03-alpha-engines P07 | 91 | 2 tasks | 10 files |
+| Phase 03-alpha-engines P08 | 4 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -119,6 +120,8 @@ Recent decisions affecting current work:
 - [Phase 03-alpha-engines]: FeatureBuilder outer .shift(1) is belt-and-suspenders PiT layer on top of Numba function PiT alignment
 - [Phase 03-alpha-engines]: XGBoost callbacks in constructor (not fit()) — XGBoost 3.x raises TypeError if callbacks passed to fit(); regression-tested
 - [Phase 03-alpha-engines]: SHAP identity verified against raw model output (output_margin=True) — probability output passes through sigmoid making direct sum invalid
+- [Phase 03-alpha-engines]: initial_regime parameter added to RegimeOrchestrator constructor to support testing without hysteresis settling period
+- [Phase 03-alpha-engines]: RegimeOrchestrator owns 20-bar hysteresis dwell and CRISIS reduce-only gating — engines have no regime awareness (D-06)
 
 ### Pending Todos
 
@@ -138,6 +141,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T15:22:12.128Z
-Stopped at: Completed 03-07-PLAN.md — walk-forward XGBoost/RF ensemble, SHAP analysis, cost-adjusted metrics
+Last session: 2026-03-22T15:28:55.563Z
+Stopped at: Completed 03-08-PLAN.md — RegimeOrchestrator with hysteresis, CrossAssetCache, and ArcticDB signal persistence
 Resume file: None

@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Foundation** - CI/CD quality pipeline and broker-agnostic execution abstraction layer
 - [x] **Phase 2: Data Engineering** - ArcticDB storage, PiT compliance, and VectorBT backtesting infrastructure (completed 2026-03-22)
-- [ ] **Phase 3: Alpha Engines** - Regime detection, cointegration, carry, and ML momentum strategy engines
+- [x] **Phase 3: Alpha Engines** - Regime detection, cointegration, carry, and ML momentum strategy engines (completed 2026-03-22)
 - [ ] **Phase 4: Risk, IPC & Dashboard** - CVaR/Kelly risk engine, NATS telemetry, and React monitoring dashboard
 - [ ] **Phase 5: Integration & Production** - E2E validation, shadow trading, live deployment, and Stage B preparation
 
@@ -69,7 +69,7 @@ Plans:
   2. The cointegration engine fires entry signals at z-score ±2.0, hard stops at ±4.0, and correctly tracks the 504-bar rolling hedge ratio for all three configured pairs
   3. The carry provider suppresses signals on symbols where spread cost exceeds the carry differential, and the ML ensemble completes a walk-forward run (756-bar train, 21-bar step) with SHAP output
   4. Regime gates activate the correct strategy set: ML and carry in Trending, cointegration in Mean-Reverting, and reduce-only in Crisis
-**Plans:** 7/8 plans executed
+**Plans:** 8/8 plans complete
 
 Plans:
 - [x] 03-01-PLAN.md — Wave 0 setup: install shap, signal types contract, test scaffolds
@@ -79,7 +79,7 @@ Plans:
 - [x] 03-05-PLAN.md — Carry signal provider: swap-based ranking with spread filter
 - [x] 03-06-PLAN.md — ML 27-feature Numba pipeline and FeatureBuilder
 - [x] 03-07-PLAN.md — Walk-forward XGBoost+RF ensemble with SHAP analysis
-- [ ] 03-08-PLAN.md — RegimeOrchestrator: strategy gating, hysteresis, signal persistence
+- [x] 03-08-PLAN.md — RegimeOrchestrator: strategy gating, hysteresis, signal persistence
 
 ### Phase 4: Risk, IPC & Dashboard
 **Goal**: All open positions are subject to live CVaR and Kelly sizing constraints, telemetry flows end-to-end from engine to browser, and the dashboard displays real-time system state
@@ -113,6 +113,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/7 | In Progress|  |
 | 2. Data Engineering | 6/6 | Complete   | 2026-03-22 |
-| 3. Alpha Engines | 7/8 | In Progress|  |
+| 3. Alpha Engines | 8/8 | Complete   | 2026-03-22 |
 | 4. Risk, IPC & Dashboard | 0/TBD | Not started | - |
 | 5. Integration & Production | 0/TBD | Not started | - |
