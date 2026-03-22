@@ -24,6 +24,7 @@ module = [
     "hmmlearn.*",
     "arch.*",
     "vectorbt.*",
+    "vectorbtpro.*",
     "arcticdb.*",
     "nats.*",
     "xgboost.*",
@@ -31,6 +32,8 @@ module = [
     "msgpack.*",
     "zmq.*",
     "statsmodels.*",
+    "numba.*",
+    "psutil.*",
 ]
 ignore_missing_imports = true
 

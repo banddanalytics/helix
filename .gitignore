@@ -16,11 +16,13 @@ venv/
 __pycache__/
 *.nbi
 *.nbc
+numba_cache/
 
 # ArcticDB / data
 *.lmdb/
 /data/
 tick_data/
+arctic_data/
 *.db
 
 # VectorBT cache

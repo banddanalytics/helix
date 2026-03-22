@@ -14,6 +14,6 @@ test-integration:
 
 validate:
 	.venv/bin/python scripts/ast_validator.py --stubs stubs/ --source src/
-	.venv/bin/python scripts/pit_validator.py --source src/alpha/
+	.venv/bin/python scripts/pit_validator.py --source src/alpha/ --source src/data/ --source src/backtest/
 
 all: lint typecheck validate test
