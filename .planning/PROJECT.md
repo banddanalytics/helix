@@ -27,11 +27,11 @@ A fully automated, broker-agnostic trading system where every signal passes thro
 - [ ] SimAdapter for backtesting and CI without Windows MT5 dependency
 - [ ] ZeroMQ bridge: Windows MT5 ↔ Linux alpha engines over WireGuard VPN
 
-**Alpha Engines**
-- [ ] HMM-GARCH regime detector (3 states: Trending, Mean-Reverting, Crisis)
-- [ ] Johansen cointegration engine for 3 Forex pairs (AUDUSD/NZDUSD, EURUSD/GBPUSD, USDJPY/USDCHF)
-- [ ] Swap-based carry signal provider with spread-cost filter
-- [ ] ML price momentum: 27-feature Numba pipeline + XGBoost/RF walk-forward ensemble
+**Alpha Engines** *(Validated in Phase 03: alpha-engines)*
+- [x] HMM-GARCH regime detector (3 states: Trending, Mean-Reverting, Crisis)
+- [x] Johansen cointegration engine for 3 Forex pairs (AUDUSD/NZDUSD, EURUSD/GBPUSD, USDJPY/USDCHF)
+- [x] Swap-based carry signal provider with spread-cost filter
+- [x] ML price momentum: 27-feature Numba pipeline + XGBoost/RF walk-forward ensemble
 
 **Risk Management**
 - [ ] CVaR computation (historical, parametric, Cornish-Fisher, spread-adjusted)
@@ -84,7 +84,7 @@ A fully automated, broker-agnostic trading system where every signal passes thro
 | NATS JetStream over Kafka | Single-node simplicity for Stage A, hub+leaf scales to Stage B without code changes | — Pending |
 
 ---
-*Last updated: 2026-03-22 after Phase 02: data-engineering — ArcticDB store, PiT manager, tick writer, bar aggregator, and Numba backtesting stack complete. 36 tests passing.*
+*Last updated: 2026-03-22 after Phase 03: alpha-engines — HMM-GARCH detector, Johansen cointegration, carry signal provider, 27-feature Numba ML pipeline, walk-forward XGBoost/RF ensemble, and RegimeOrchestrator complete. 346 tests passing, 84% coverage.*
 
 ## Evolution
 
