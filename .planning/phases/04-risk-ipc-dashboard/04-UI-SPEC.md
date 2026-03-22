@@ -129,8 +129,11 @@ Components required per route. All from shadcn/ui official registry unless noted
 - `Tooltip` — Metric label explanations on hover
 
 ### Overview (`/`)
+
+Primary focal point: equity curve sparkline (cyan accent line, `cyan-400`, rendered as a Recharts `LineChart`) — this is the first element the eye should land on when the route loads. Place it at the top of the card grid, full-width or spanning 2 columns, before the individual metric tiles.
+
 - `Card` + `CardHeader` + `CardContent` — Summary metric tiles (equity, PnL, CVaR, drawdown)
-- Recharts `LineChart` — Equity curve sparkline (accent color line)
+- Recharts `LineChart` — Equity curve sparkline (accent color line, full-width primary position — see focal point note above)
 - `Table` — Position summary (symbol, size, unrealized PnL, regime)
 
 ### Regime (`/regime`)
@@ -164,16 +167,6 @@ Components required per route. All from shadcn/ui official registry unless noted
 - `Table` — Order blotter (timestamp, symbol, side, size, fill price, status)
 - `Badge` — Order status (Filled / Pending / Rejected / Sandboxed)
 - `Pagination` — Blotter pagination
-
-### 21st.dev Components (Claude's Discretion)
-The executor MUST vet each 21st.dev block via `npx shadcn view {block} --registry https://21st.dev/r` before adding to codebase. Scan for: `fetch(`, `XMLHttpRequest`, `eval(`, `process.env`, dynamic imports from external URLs. Document result in execution log with date.
-
-Candidate blocks (to vet during execution):
-- Gauge / radial meter — for CVaR budget utilization (if available)
-- Data table with sorting — for order blotter and cointegration pair list
-- Sparkline — for PnL mini-chart in overview tiles
-
-If a 21st.dev block fails the vet or is unavailable, fall back to the equivalent shadcn/recharts combination listed above.
 
 ---
 
@@ -235,14 +228,8 @@ All unit labels MUST read from the `tradingStage` React context (D-07 CONTEXT.md
 | Registry | Blocks Used | Safety Gate |
 |----------|-------------|-------------|
 | shadcn official | Badge, Card, Table, Skeleton, Alert, Progress, Sheet, NavigationMenu, Separator, Tooltip, Pagination | not required |
-| 21st.dev (`https://21st.dev/r`) | TBD — executor must determine which blocks are available and pass vetting | `npx shadcn view {block} --registry https://21st.dev/r` required per block before use; executor documents pass/fail with date in execution log |
 
-**21st.dev vetting protocol for executor:**
-1. Run `npx shadcn view {block} --registry https://21st.dev/r`
-2. Scan output for: `fetch(`, `XMLHttpRequest`, `navigator.sendBeacon`, `process.env`, `eval(`, `Function(`, `new Function`, dynamic imports from external URLs
-3. If any flag found: display to developer for approval before proceeding
-4. If no flags: record "view passed — no flags — {date}" in execution log
-5. If block not found: use shadcn/recharts fallback listed in Component Inventory
+**Note on 21st.dev:** The three candidate 21st.dev blocks (gauge/radial meter, data table with sorting, sparkline) were not resolvable via `npx shadcn view` — the CLI returned "not found" for all three at `https://21st.dev/r` on 2026-03-22. The 21st.dev registry row has been removed from this contract. All three use cases are satisfied by the shadcn/recharts fallbacks already declared in the Component Inventory above: Recharts `LineChart` for sparklines, shadcn `Table` for sortable data tables, and Recharts `LineChart` with threshold annotations for CVaR gauge visualization. No third-party registry blocks are in scope for this phase.
 
 ---
 
