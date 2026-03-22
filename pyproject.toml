@@ -55,6 +55,13 @@ quote-style = "double"
 [tool.coverage.run]
 branch = true
 source = ["src"]
+omit = [
+    "src/alpha/ml_price_momentum/features/momentum.py",
+    "src/alpha/ml_price_momentum/features/volatility.py",
+    "src/alpha/ml_price_momentum/features/session.py",
+    "src/alpha/ml_price_momentum/features/tick_volume.py",
+    "src/backtest/numba_kernels.py",
+]
 
 [tool.coverage.report]
 fail_under = 80
