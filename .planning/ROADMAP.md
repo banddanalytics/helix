@@ -69,7 +69,7 @@ Plans:
   2. The cointegration engine fires entry signals at z-score ±2.0, hard stops at ±4.0, and correctly tracks the 504-bar rolling hedge ratio for all three configured pairs
   3. The carry provider suppresses signals on symbols where spread cost exceeds the carry differential, and the ML ensemble completes a walk-forward run (756-bar train, 21-bar step) with SHAP output
   4. Regime gates activate the correct strategy set: ML and carry in Trending, cointegration in Mean-Reverting, and reduce-only in Crisis
-**Plans:** 10 plans (8 complete, 2 gap closure)
+**Plans:** 9/10 plans executed
 
 Plans:
 - [x] 03-01-PLAN.md — Wave 0 setup: install shap, signal types contract, test scaffolds
@@ -80,7 +80,7 @@ Plans:
 - [x] 03-06-PLAN.md — ML 27-feature Numba pipeline and FeatureBuilder
 - [x] 03-07-PLAN.md — Walk-forward XGBoost+RF ensemble with SHAP analysis
 - [x] 03-08-PLAN.md — RegimeOrchestrator: strategy gating, hysteresis, signal persistence
-- [ ] 03-09-PLAN.md — Gap closure: coverage config fixes (Numba omit + slow test exclusion)
+- [x] 03-09-PLAN.md — Gap closure: coverage config fixes (Numba omit + slow test exclusion)
 - [ ] 03-10-PLAN.md — Gap closure: missing unit tests for online_filter, walk_forward, orchestrator persist
 
 ### Phase 4: Risk, IPC & Dashboard
@@ -115,6 +115,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/7 | In Progress|  |
 | 2. Data Engineering | 6/6 | Complete   | 2026-03-22 |
-| 3. Alpha Engines | 8/10 | Gap Closure | - |
+| 3. Alpha Engines | 9/10 | In Progress|  |
 | 4. Risk, IPC & Dashboard | 0/TBD | Not started | - |
 | 5. Integration & Production | 0/TBD | Not started | - |
