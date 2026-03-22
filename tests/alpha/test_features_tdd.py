@@ -52,7 +52,12 @@ def test_momentum_shape_and_finite(bar_arrays: dict[str, np.ndarray]) -> None:
 
 
 def test_volatility_shape_and_finite(bar_arrays: dict[str, np.ndarray]) -> None:
-    """Test 2: compute_volatility_features returns (n, 6) with positive vol values after warmup 63."""
+    """Test 2: compute_volatility_features returns (n, 6) with positive vol values after warmup.
+
+    Warmup notes:
+    - Cols 0,1,3,4,5: warmup=64 (lr[0] undefined, first full window at index 64)
+    - Col 2 (vol_zscore): warmup=86 (needs 63 rolling 22-bar vols, each needing >= 22 bars)
+    """
     from src.alpha.ml_price_momentum.features.volatility import compute_volatility_features
 
     c = bar_arrays["close"]
@@ -61,13 +66,17 @@ def test_volatility_shape_and_finite(bar_arrays: dict[str, np.ndarray]) -> None:
     result = compute_volatility_features(c, h, lo)
 
     assert result.shape == (len(c), 6), f"Expected ({len(c)}, 6), got {result.shape}"
-    # Warmup is 64 (not 63) because lr[0] is undefined — first full 63-bar window
-    # starts at index 64 where lr[1:64] is available.
-    assert np.all(np.isfinite(result[64:])), "Non-finite values found after warmup at index 64"
-    # Vol values (cols 0-2) should be non-negative after warmup
+
+    # Check all cols after the longest warmup (86)
+    assert np.all(np.isfinite(result[86:])), "Non-finite values found after warmup at index 86"
+
+    # Spot-check simpler cols after their own warmup (64)
+    for col in [0, 1, 3, 4, 5]:
+        assert np.all(np.isfinite(result[64:, col])), f"Non-finite in vol col {col} after row 64"
+
+    # Vol values (cols 0, 1) should be non-negative
     assert np.all(result[64:, 0] >= 0), "Negative realized vol (5-bar) found"
     assert np.all(result[64:, 1] >= 0), "Negative realized vol (22-bar) found"
-    assert np.all(result[64:, 2] >= 0), "Negative realized vol (63-bar) found"
 
 
 def test_session_shape_and_session_ids(bar_arrays: dict[str, np.ndarray]) -> None:

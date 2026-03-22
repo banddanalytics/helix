@@ -10,6 +10,7 @@ addopts = "--cov=src --cov-report=term-missing --cov-branch --cov-fail-under=80 
 asyncio_mode = "auto"
 markers = [
     "pit_check: marks tests as Point-in-Time compliance checks",
+    "slow: marks tests as slow (deselect with '-m not slow')",
 ]
 
 [tool.mypy]

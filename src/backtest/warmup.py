@@ -49,6 +49,26 @@ def warmup_numba() -> float:
         period=3,
     )
 
+    # Phase 3: Alpha feature warmup
+    from src.alpha.ml_price_momentum.features.momentum import compute_momentum_features
+    from src.alpha.ml_price_momentum.features.session import compute_session_features
+    from src.alpha.ml_price_momentum.features.tick_volume import compute_tick_volume_features
+    from src.alpha.ml_price_momentum.features.volatility import compute_volatility_features
+
+    n_warm = 300  # > 253 required warmup
+    close_w = np.linspace(1.0, 1.05, n_warm)
+    high_w = close_w + 0.001
+    low_w = close_w - 0.001
+    open_w = close_w - 0.0005
+    tv_w = np.full(n_warm, 500.0)
+    hour_w = np.tile(np.arange(24), n_warm // 24 + 1)[:n_warm].astype(np.int64)
+    dow_w = np.tile(np.arange(5), n_warm // 5 + 1)[:n_warm].astype(np.int64)
+
+    compute_momentum_features(close_w, high_w, low_w)
+    compute_volatility_features(close_w, high_w, low_w)
+    compute_session_features(open_w, high_w, low_w, close_w, hour_w, dow_w)
+    compute_tick_volume_features(close_w, tv_w)
+
     elapsed = time.monotonic() - start
     logger.info("Numba warmup completed in %.2fs", elapsed)
     return elapsed

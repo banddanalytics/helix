@@ -64,14 +64,21 @@ def compute_momentum_features(
         mom5_previous = close[i - 2] / close[i - 7] - 1.0
         out[i, 6] = mom5_current - mom5_previous
 
-        # Range expansion: (recent range) / (mean range of 20 prior bars)
-        recent_range = high[i - 1] - low[i - 1]
-        range_sum = 0.0
-        for j in range(i - 21, i - 1):
-            range_sum += high[j] - low[j]
-        avg_range = range_sum / 20.0
-        if avg_range > 0.0:
-            out[i, 7] = recent_range / avg_range
+        # Range expansion: (recent 5-bar avg range) / (50-bar historical avg range)
+        # Uses the ratio of recent volatility to longer-term baseline — distinct from
+        # session.relative_bar_size which normalises a single bar vs 20-bar avg.
+        recent_range_sum = 0.0
+        for j in range(i - 5, i):
+            recent_range_sum += high[j] - low[j]
+        recent_range = recent_range_sum / 5.0
+
+        hist_range_sum = 0.0
+        for j in range(i - 51, i - 1):
+            hist_range_sum += high[j] - low[j]
+        hist_range = hist_range_sum / 50.0
+
+        if hist_range > 0.0:
+            out[i, 7] = recent_range / hist_range
         else:
             out[i, 7] = 1.0
 

@@ -84,7 +84,29 @@ def compute_volatility_features(
 
         out[i, 0] = vol5
         out[i, 1] = vol22
-        out[i, 2] = vol63
+        # col 2: vol z-score — how unusual is current 22-bar vol relative to 63-bar baseline?
+        # mean of rolling 22-bar vols over the past 63 bars
+        vol22_mean = 0.0
+        vol22_std_sq = 0.0
+        for k in range(i - 63, i):
+            # 22-bar vol ending at position k
+            if k >= 22:
+                v = _std(lr[k - 22: k])
+            else:
+                v = 0.0
+            vol22_mean += v
+        vol22_mean /= 63.0
+        for k in range(i - 63, i):
+            if k >= 22:
+                v = _std(lr[k - 22: k])
+            else:
+                v = 0.0
+            diff = v - vol22_mean
+            vol22_std_sq += diff * diff
+        vol22_std_sq /= 62.0
+        vol22_baseline_std = vol22_std_sq ** 0.5
+        out[i, 2] = (vol22 - vol22_mean) / max(vol22_baseline_std, 1e-10)
+
         out[i, 3] = vol5 / max(vol63, 1e-10)
 
         # Parkinson vol (22-bar): sqrt(sum(ln(H/L)^2) / (22 * 4 * ln(2)))
