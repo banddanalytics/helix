@@ -28,7 +28,7 @@
 
 ### Data Engineering
 
-- [ ] **DATA-01**: ArcticDB initialized with 6 libraries (forex_ticks, forex_bars, swap_rates, mbo_ticks stub, signals, portfolio)
+- [x] **DATA-01**: ArcticDB initialized with 6 libraries (forex_ticks, forex_bars, swap_rates, mbo_ticks stub, signals, portfolio)
 - [ ] **DATA-02**: Forex tick writer batches 10K ticks, flushes every 1s, never blocks execution adapter
 - [ ] **DATA-03**: Bar aggregator produces 6 timeframes (1m/5m/15m/1h/4h/1d) with session tagging
 - [ ] **DATA-04**: PiT manager prevents all 5 look-ahead bias vectors; pit_read returns only data ≤ as_of_timestamp
@@ -133,7 +133,7 @@
 | EXEC-05 | Phase 1 | Pending |
 | EXEC-06 | Phase 1 | Pending |
 | EXEC-07 | Phase 1 | Pending |
-| DATA-01 | Phase 2 | Pending |
+| DATA-01 | Phase 2 | Complete |
 | DATA-02 | Phase 2 | Pending |
 | DATA-03 | Phase 2 | Pending |
 | DATA-04 | Phase 2 | Pending |

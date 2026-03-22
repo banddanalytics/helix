@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 01-foundation-06-PLAN.md — SpreadModel, SwapRateCalculator, LotSizer execution utilities
-last_updated: "2026-03-22T06:22:38.554Z"
+stopped_at: Completed 02-data-engineering-02-PLAN.md — ArcticDB store init, 6 libraries, schema constants, admin CLI
+last_updated: "2026-03-22T07:36:28.869Z"
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 7
-  completed_plans: 7
+  total_plans: 13
+  completed_plans: 8
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-20)
 
 **Core value:** A broker-agnostic trading system where every signal passes through rigorous quality gates (AST validation, PiT compliance, 80%+ test coverage) before reaching live markets
-**Current focus:** Phase 01 — foundation
+**Current focus:** Phase 02 — data-engineering
 
 ## Current Position
 
-Phase: 2
-Plan: Not started
+Phase: 02 (data-engineering) — EXECUTING
+Plan: 2 of 6
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Plan: Not started
 | Phase 01 P02 | 14 | 2 tasks | 18 files |
 | Phase 01-foundation P03 | 20 | 2 tasks | 13 files |
 | Phase 01-foundation P06 | 3 | 2 tasks | 6 files |
+| Phase 02-data-engineering P02 | 3 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,9 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: pytest and validators excluded from pre-commit per D-07/D-08/D-09 — CI only gates
 - [Phase 01-foundation]: SpreadModel wiring into SimAdapter deferred to Phase 2 — Phase 1 uses fixed spread_pips float; Phase 2 replaces with SpreadModel.median after ArcticDB tick history available
 - [Phase 01-foundation]: LotSizer floor-rounds to volume_step via math.floor to prevent position over-sizing
+- [Phase 02-data-engineering]: Module-level singleton (not lru_cache) for ArcticDB store — reset_store() allows test injection of tmp paths
+- [Phase 02-data-engineering]: LMDB backend fixed at ./arctic_data, no env-var switching per D-01/D-02
+- [Phase 02-data-engineering]: Schema constants are plain dict[str, str] — documentation only, ArcticDB infers schema from first DataFrame write
 
 ### Pending Todos
 
@@ -89,6 +93,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T19:32:46.633Z
-Stopped at: Completed 01-foundation-06-PLAN.md — SpreadModel, SwapRateCalculator, LotSizer execution utilities
+Last session: 2026-03-22T07:36:28.866Z
+Stopped at: Completed 02-data-engineering-02-PLAN.md — ArcticDB store init, 6 libraries, schema constants, admin CLI
 Resume file: None
