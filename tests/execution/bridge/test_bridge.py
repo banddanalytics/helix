@@ -11,6 +11,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import numpy as np
 import pytest
+import zmq
 
 from src.execution.abstract import Bar, OrderRequest, OrderResult, OrderType, Side, Tick
 
@@ -510,3 +511,275 @@ class TestLinuxConsumerReconnect:
             await consumer._reconnect()
 
         assert consumer._reconnect_attempt >= 1
+
+
+# ---------------------------------------------------------------------------
+# Additional lifecycle / coverage tests
+# ---------------------------------------------------------------------------
+
+
+class TestWindowsPublisherLifecycle:
+    """Tests for publisher start/stop and order loop."""
+
+    @pytest.mark.asyncio
+    async def test_stop_clears_sockets(self) -> None:
+        from src.execution.bridge.windows_publisher import WindowsPublisher
+
+        publisher = WindowsPublisher()
+        # Inject mock sockets directly — avoids binding real ports
+        for attr in ("_tick_pub", "_bar_pub", "_order_pull", "_order_push"):
+            mock_sock = MagicMock()
+            setattr(publisher, attr, mock_sock)
+        mock_ctx = MagicMock()
+        publisher._ctx = mock_ctx
+        publisher._running = True
+
+        await publisher.stop()
+
+        assert publisher._tick_pub is None
+        assert publisher._bar_pub is None
+        assert publisher._order_pull is None
+        assert publisher._order_push is None
+        assert publisher._ctx is None
+        assert publisher._running is False
+
+    @pytest.mark.asyncio
+    async def test_publish_tick_noop_when_not_started(
+        self, sample_tick: Tick
+    ) -> None:
+        from src.execution.bridge.windows_publisher import WindowsPublisher
+
+        publisher = WindowsPublisher()
+        # _tick_pub is None — should not raise
+        await publisher.publish_tick(sample_tick)
+
+    @pytest.mark.asyncio
+    async def test_publish_bar_noop_when_not_started(self, sample_bar: Bar) -> None:
+        from src.execution.bridge.windows_publisher import WindowsPublisher
+
+        publisher = WindowsPublisher()
+        await publisher.publish_bar(sample_bar)
+
+    @pytest.mark.asyncio
+    async def test_order_loop_receives_and_dispatches(
+        self, sample_order_request: OrderRequest
+    ) -> None:
+        from src.execution.bridge.windows_publisher import WindowsPublisher
+        from src.execution.bridge.message_schemas import pack_order_request
+
+        publisher = WindowsPublisher()
+        received: list[OrderRequest] = []
+
+        async def handler(order: OrderRequest) -> None:
+            received.append(order)
+            publisher._running = False  # Stop after one iteration
+
+        mock_socket = AsyncMock()
+        mock_socket.recv.return_value = pack_order_request(sample_order_request)
+        publisher._order_pull = mock_socket
+        publisher._running = True
+
+        await publisher._order_loop(handler)
+
+        assert len(received) == 1
+        assert received[0].symbol == sample_order_request.symbol
+
+    @pytest.mark.asyncio
+    async def test_send_order_result_bytes(self) -> None:
+        from src.execution.bridge.windows_publisher import WindowsPublisher
+
+        publisher = WindowsPublisher()
+        mock_socket = AsyncMock()
+        publisher._order_push = mock_socket
+
+        await publisher.send_order_result_bytes(b"result_data")
+
+        mock_socket.send.assert_called_once_with(b"result_data")
+
+
+class TestLinuxConsumerLifecycle:
+    """Tests for consumer connect/disconnect and send_order."""
+
+    @pytest.mark.asyncio
+    async def test_disconnect_clears_sockets(self) -> None:
+        from src.execution.bridge.linux_consumer import LinuxConsumer
+
+        consumer = LinuxConsumer()
+        for attr in ("_tick_sub", "_bar_sub", "_order_push", "_order_pull"):
+            mock_sock = MagicMock()
+            setattr(consumer, attr, mock_sock)
+        mock_ctx = MagicMock()
+        consumer._ctx = mock_ctx
+        consumer._running = True
+
+        await consumer.disconnect()
+
+        assert consumer._tick_sub is None
+        assert consumer._bar_sub is None
+        assert consumer._order_push is None
+        assert consumer._order_pull is None
+        assert consumer._ctx is None
+        assert consumer._running is False
+
+    @pytest.mark.asyncio
+    async def test_send_order_pushes_packed_bytes(
+        self, sample_order_request: OrderRequest
+    ) -> None:
+        from src.execution.bridge.linux_consumer import LinuxConsumer
+        from src.execution.bridge.message_schemas import pack_order_request
+
+        consumer = LinuxConsumer()
+        mock_socket = AsyncMock()
+        consumer._order_push = mock_socket
+
+        await consumer.send_order(sample_order_request)
+
+        mock_socket.send.assert_called_once_with(pack_order_request(sample_order_request))
+
+    @pytest.mark.asyncio
+    async def test_send_order_noop_when_not_connected(
+        self, sample_order_request: OrderRequest
+    ) -> None:
+        from src.execution.bridge.linux_consumer import LinuxConsumer
+
+        consumer = LinuxConsumer()
+        # _order_push is None — should not raise
+        await consumer.send_order(sample_order_request)
+
+    @pytest.mark.asyncio
+    async def test_subscribe_also_sets_bar_socket_filter(self) -> None:
+        from src.execution.bridge.linux_consumer import LinuxConsumer
+
+        consumer = LinuxConsumer()
+        mock_tick = MagicMock()
+        mock_bar = MagicMock()
+        consumer._tick_sub = mock_tick
+        consumer._bar_sub = mock_bar
+
+        await consumer.subscribe("GBPUSD")
+
+        mock_tick.setsockopt.assert_called_with(consumer._zmq_subscribe_opt, b"GBPUSD")
+        mock_bar.setsockopt.assert_called_with(consumer._zmq_subscribe_opt, b"GBPUSD")
+        assert "GBPUSD" in consumer._subscribed_symbols
+
+    @pytest.mark.asyncio
+    async def test_reconnect_closes_open_sockets(self) -> None:
+        """_reconnect closes existing sockets when running is True."""
+        from src.execution.bridge.linux_consumer import LinuxConsumer
+
+        consumer = LinuxConsumer()
+        consumer._running = True  # Running = enters socket-close block
+        consumer._reconnect_attempt = 2
+
+        mock_sock = MagicMock()
+        consumer._tick_sub = mock_sock
+        consumer._bar_sub = mock_sock
+        consumer._order_push = mock_sock
+        consumer._order_pull = mock_sock
+        consumer._ctx = None  # No context — skip reconnect after clear
+
+        with patch("asyncio.sleep", new_callable=AsyncMock):
+            await consumer._reconnect()
+
+        # Attempt counter should advance
+        assert consumer._reconnect_attempt == 3
+        # Sockets should be cleared (ctx is None so no reconnect call)
+        assert consumer._tick_sub is None
+        assert consumer._bar_sub is None
+        assert consumer._order_push is None
+        assert consumer._order_pull is None
+
+    @pytest.mark.asyncio
+    async def test_receive_loop_handles_heartbeat_frame(self) -> None:
+        """_receive_loop updates _last_heartbeat when heartbeat arrives."""
+        from src.execution.bridge.linux_consumer import LinuxConsumer
+        from src.execution.bridge.message_schemas import pack_heartbeat
+
+        consumer = LinuxConsumer()
+
+        ticks_received: list[Tick] = []
+        bars_received: list[Bar] = []
+
+        async def on_tick(tick: Tick) -> None:
+            ticks_received.append(tick)
+
+        async def on_bar(bar: Bar) -> None:
+            bars_received.append(bar)
+
+        # First poll: heartbeat, second poll: stop
+        call_count = 0
+
+        async def mock_poll(timeout: int = 0) -> dict[Any, Any]:
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                return {consumer._tick_sub: zmq.POLLIN}
+            consumer._running = False
+            return {}
+
+        mock_tick_sub = AsyncMock()
+        mock_tick_sub.recv_multipart.return_value = [pack_heartbeat()]
+        consumer._tick_sub = mock_tick_sub
+        consumer._bar_sub = AsyncMock()
+
+        mock_poller = AsyncMock()
+        mock_poller.register = MagicMock()
+        mock_poller.poll = mock_poll
+        consumer._running = True
+
+        before = time.monotonic()
+        with patch("zmq.asyncio.Poller", return_value=mock_poller):
+            await consumer._receive_loop(on_tick, on_bar)
+        after = time.monotonic()
+
+        # heartbeat timestamp updated
+        assert consumer._last_heartbeat >= before
+        assert consumer._last_heartbeat <= after + 1.0
+        assert len(ticks_received) == 0
+
+    @pytest.mark.asyncio
+    async def test_receive_loop_dispatches_tick(self, sample_tick: Tick) -> None:
+        """_receive_loop dispatches multipart tick message to on_tick callback."""
+        from src.execution.bridge.linux_consumer import LinuxConsumer
+        from src.execution.bridge.message_schemas import pack_tick
+
+        consumer = LinuxConsumer()
+
+        ticks_received: list[Tick] = []
+        bars_received: list[Bar] = []
+
+        async def on_tick(tick: Tick) -> None:
+            ticks_received.append(tick)
+            consumer._running = False
+
+        async def on_bar(bar: Bar) -> None:
+            bars_received.append(bar)
+
+        call_count = 0
+
+        async def mock_poll(timeout: int = 0) -> dict[Any, Any]:
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                return {consumer._tick_sub: zmq.POLLIN}
+            consumer._running = False
+            return {}
+
+        mock_tick_sub = AsyncMock()
+        mock_tick_sub.recv_multipart.return_value = [
+            sample_tick.symbol.encode(),
+            pack_tick(sample_tick),
+        ]
+        consumer._tick_sub = mock_tick_sub
+        consumer._bar_sub = AsyncMock()
+        consumer._running = True
+
+        mock_poller = AsyncMock()
+        mock_poller.register = MagicMock()
+        mock_poller.poll = mock_poll
+
+        with patch("zmq.asyncio.Poller", return_value=mock_poller):
+            await consumer._receive_loop(on_tick, on_bar)
+
+        assert len(ticks_received) == 1
+        assert ticks_received[0].symbol == sample_tick.symbol
