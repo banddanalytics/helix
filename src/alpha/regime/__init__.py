@@ -1,5 +1,6 @@
 """Helix HMM-GARCH regime detector — Trending, Mean-Reverting, Crisis states."""
 
+from src.alpha.regime.calibration import RecalibrationService
 from src.alpha.regime.emissions import GARCHParams, garch_emission_prob
 from src.alpha.regime.hmm_garch import HMMGARCHRegimeDetector
 from src.alpha.regime.online_filter import OnlineRegimeFilter
@@ -10,5 +11,6 @@ __all__ = [
     "garch_emission_prob",
     "HMMGARCHRegimeDetector",
     "OnlineRegimeFilter",
+    "RecalibrationService",
     "viterbi_decode",
 ]

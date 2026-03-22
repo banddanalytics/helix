@@ -1,0 +1,15 @@
+recalibration:
+  full_refit:
+    schedule: "weekly"
+    day: "sunday"
+    hour_utc: 0
+    min_data_bars: 1260  # 5 years of daily bars
+  garch_update:
+    interval_bars: 1000
+  validation:
+    stationarity_threshold: 1.0  # alpha + beta must be < this
+    state_agreement_threshold: 0.90  # 90% agreement on last 100 bars
+    agreement_lookback: 100
+    drift_warning_threshold: 0.50  # 50% param change triggers warning
+  smoothing:
+    dirichlet_concentration: 0.01
