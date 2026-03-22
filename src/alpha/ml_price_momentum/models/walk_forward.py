@@ -14,6 +14,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
+from src.alpha.ml_price_momentum.evaluation.shap_analysis import SHAPAnalyzer
 from src.alpha.ml_price_momentum.models.ensemble import EnsembleModel
 
 logger = logging.getLogger("helix.alpha")
@@ -92,6 +93,8 @@ class WalkForwardEngine:
             )
             return results
 
+        analyzer = SHAPAnalyzer(feature_names) if feature_names is not None else None
+
         for w in range(n_wins):
             train_end = cfg.train_window + w * cfg.step
             train_start = train_end - cfg.train_window
@@ -124,6 +127,13 @@ class WalkForwardEngine:
             ensemble.fit(X_train, y_train, X_val, y_val)
             predictions = ensemble.predict_proba(X_test)
 
+            feature_importance = None
+            if analyzer is not None:
+                shap_result = analyzer.analyze_window(
+                    ensemble.xgb_model.model, X_test
+                )
+                feature_importance = shap_result["feature_importance"]
+
             results.append(
                 WindowResult(
                     window_idx=w,
@@ -131,7 +141,7 @@ class WalkForwardEngine:
                     test_end=test_end,
                     predictions=predictions,
                     actuals=y_test,
-                    feature_importance=None,
+                    feature_importance=feature_importance,
                 )
             )
 

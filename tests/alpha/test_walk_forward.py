@@ -6,10 +6,12 @@ import numpy as np
 import pytest
 
 from src.alpha.ml_price_momentum.evaluation.cost_adjusted_metrics import (
+    SUPPORTED_TIMEFRAMES,
     cost_adjusted_sharpe,
     gross_sharpe,
     timeframe_to_bars_per_year,
 )
+from src.alpha.ml_price_momentum.evaluation.shap_analysis import SHAPAnalyzer
 from src.alpha.ml_price_momentum.models.walk_forward import (
     WalkForwardConfig,
     WalkForwardEngine,
@@ -123,3 +125,50 @@ def test_sharpe_scales_with_bars_per_year() -> None:
     actual_ratio = sharpe_hourly / sharpe_daily
 
     assert actual_ratio == pytest.approx(expected_ratio, rel=1e-6)
+
+
+def test_shap_populates_feature_importance() -> None:
+    """SHAP feature importance is populated when feature_names are provided.
+
+    Uses a small config (3 windows) to keep runtime under 30s.
+    """
+    x, y = _make_synthetic_data(n_samples=500, n_features=5)
+    feature_names = ["f0", "f1", "f2", "f3", "f4"]
+    config = WalkForwardConfig(
+        train_window=200,
+        val_size=30,
+        test_window=21,
+        purge_gap=5,
+        step=80,
+    )
+    engine = WalkForwardEngine(config)
+    n_expected = engine.n_windows(500)
+    assert n_expected >= 2, f"Config should yield >=2 windows, got {n_expected}"
+
+    results = engine.run(x, y, feature_names=feature_names)
+
+    assert len(results) >= 2
+    for r in results:
+        assert r.feature_importance is not None, (
+            f"Window {r.window_idx}: feature_importance should not be None"
+        )
+        assert set(r.feature_importance.keys()) == set(feature_names)
+        assert all(v >= 0 for v in r.feature_importance.values())
+
+
+def test_shap_none_without_feature_names() -> None:
+    """SHAP feature importance is None when feature_names omitted."""
+    x, y = _make_synthetic_data(n_samples=500, n_features=5)
+    config = WalkForwardConfig(
+        train_window=200,
+        val_size=30,
+        test_window=21,
+        purge_gap=5,
+        step=80,
+    )
+    engine = WalkForwardEngine(config)
+    results = engine.run(x, y)
+
+    assert len(results) >= 2
+    for r in results:
+        assert r.feature_importance is None
