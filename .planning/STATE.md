@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-06-PLAN.md — 5-tier 27-feature Numba pipeline for ML price momentum
-last_updated: "2026-03-22T10:48:55.228Z"
+stopped_at: Completed 03-07-PLAN.md — walk-forward XGBoost/RF ensemble, SHAP analysis, cost-adjusted metrics
+last_updated: "2026-03-22T15:22:12.131Z"
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 21
-  completed_plans: 19
+  completed_plans: 20
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 ## Current Position
 
 Phase: 03 (alpha-engines) — EXECUTING
-Plan: 7 of 8
+Plan: 8 of 8
 
 ## Performance Metrics
 
@@ -64,6 +64,7 @@ Plan: 7 of 8
 | Phase 03-alpha-engines P04 | 233 | 2 tasks | 6 files |
 | Phase 03-alpha-engines P05 | 136 | 2 tasks | 5 files |
 | Phase 03-alpha-engines P06 | 533 | 2 tasks | 10 files |
+| Phase 03-alpha-engines P07 | 91 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -116,6 +117,8 @@ Recent decisions affecting current work:
 - [Phase 03-alpha-engines]: vol_zscore replaces vol_63bar — z-score of vol_22 vs 63-bar baseline avoids corr>0.95 with vol_22bar
 - [Phase 03-alpha-engines]: range_expansion uses 5-bar/50-bar ratio (not 1-bar/20-bar) to differentiate from session.relative_bar_size
 - [Phase 03-alpha-engines]: FeatureBuilder outer .shift(1) is belt-and-suspenders PiT layer on top of Numba function PiT alignment
+- [Phase 03-alpha-engines]: XGBoost callbacks in constructor (not fit()) — XGBoost 3.x raises TypeError if callbacks passed to fit(); regression-tested
+- [Phase 03-alpha-engines]: SHAP identity verified against raw model output (output_margin=True) — probability output passes through sigmoid making direct sum invalid
 
 ### Pending Todos
 
@@ -135,6 +138,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T10:48:55.224Z
-Stopped at: Completed 03-06-PLAN.md — 5-tier 27-feature Numba pipeline for ML price momentum
+Last session: 2026-03-22T15:22:12.128Z
+Stopped at: Completed 03-07-PLAN.md — walk-forward XGBoost/RF ensemble, SHAP analysis, cost-adjusted metrics
 Resume file: None
