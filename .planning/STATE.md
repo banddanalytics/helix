@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-10-PLAN.md — 14 direct unit tests for OnlineRegimeFilter, WalkForwardEngine, and orchestrator persist methods
-last_updated: "2026-03-22T16:21:39.085Z"
+stopped_at: Phase 4 UI-SPEC approved
+last_updated: "2026-03-22T16:58:10.038Z"
 progress:
   total_phases: 5
   completed_phases: 3
@@ -139,6 +139,7 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 260322-g0v | Fix Phase 02 verification pending items | 2026-03-22 | c18399f | [260322-g0v](./quick/260322-g0v-fix-phase-02-verification-pending-items/) |
 | 260322-hyg | Fix Phase 3 pre-execution blockers: shap install, signal_types, test scaffold | 2026-03-22 | f0d63d6 | [260322-hyg](./quick/260322-hyg-fix-phase-3-pre-execution-blockers/) |
+| 260322-uov | Make annualization factor configurable for all bar timeframes | 2026-03-22 | 58536ac | [260322-uov](./quick/260322-uov-make-annualization-factor-configurable-f/) |
 
 ### Blockers/Concerns
 
@@ -147,6 +148,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T15:54:30.763Z
-Stopped at: Completed 03-10-PLAN.md — 14 direct unit tests for OnlineRegimeFilter, WalkForwardEngine, and orchestrator persist methods
-Resume file: None
+Last activity: 2026-03-22 - Completed quick task 260322-uov: Make annualization factor configurable
+Stopped at: Phase 4 UI-SPEC approved
+Resume file: .planning/phases/04-risk-ipc-dashboard/04-UI-SPEC.md
