@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-05-PLAN.md — carry signal provider with cross-sectional ranking and spread filter
-last_updated: "2026-03-22T10:37:19.883Z"
+stopped_at: Completed 03-06-PLAN.md — 5-tier 27-feature Numba pipeline for ML price momentum
+last_updated: "2026-03-22T10:48:55.228Z"
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 21
-  completed_plans: 18
+  completed_plans: 19
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 ## Current Position
 
 Phase: 03 (alpha-engines) — EXECUTING
-Plan: 6 of 8
+Plan: 7 of 8
 
 ## Performance Metrics
 
@@ -63,6 +63,7 @@ Plan: 6 of 8
 | Phase 03-alpha-engines P03 | 182 | 2 tasks | 5 files |
 | Phase 03-alpha-engines P04 | 233 | 2 tasks | 6 files |
 | Phase 03-alpha-engines P05 | 136 | 2 tasks | 5 files |
+| Phase 03-alpha-engines P06 | 533 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -112,6 +113,9 @@ Recent decisions affecting current work:
 - [Phase 03-alpha-engines]: ForexCarryProvider uses ordinal ranking / n to produce (0, 1] percentile ranks — no scipy dependency
 - [Phase 03-alpha-engines]: Spread filter applied after quartile assignment: only active signals (signal != 0) checked against spread_data
 - [Phase 03-alpha-engines]: FuturesCarryProvider raises NotImplementedError on both get_carry_signals and get_carry_ranks — full Stage B gate
+- [Phase 03-alpha-engines]: vol_zscore replaces vol_63bar — z-score of vol_22 vs 63-bar baseline avoids corr>0.95 with vol_22bar
+- [Phase 03-alpha-engines]: range_expansion uses 5-bar/50-bar ratio (not 1-bar/20-bar) to differentiate from session.relative_bar_size
+- [Phase 03-alpha-engines]: FeatureBuilder outer .shift(1) is belt-and-suspenders PiT layer on top of Numba function PiT alignment
 
 ### Pending Todos
 
@@ -131,6 +135,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T10:37:19.880Z
-Stopped at: Completed 03-05-PLAN.md — carry signal provider with cross-sectional ranking and spread filter
+Last session: 2026-03-22T10:48:55.224Z
+Stopped at: Completed 03-06-PLAN.md — 5-tier 27-feature Numba pipeline for ML price momentum
 Resume file: None
