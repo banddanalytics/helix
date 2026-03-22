@@ -101,6 +101,12 @@ Recent decisions affecting current work:
 
 None yet.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260322-g0v | Fix Phase 02 verification pending items | 2026-03-22 | c18399f | [260322-g0v](./quick/260322-g0v-fix-phase-02-verification-pending-items/) |
+
 ### Blockers/Concerns
 
 - MT5 Python API is Windows-only; alpha engine code must run on Linux via ZMQ bridge — affects Phase 1 ZMQ setup and all CI testing strategies
