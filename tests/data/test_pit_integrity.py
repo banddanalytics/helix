@@ -89,25 +89,33 @@ def test_contemp_ic_violation() -> None:
 
 
 def test_contemp_ic_compliant() -> None:
-    """DATA-04: validate_pit_compliance passes for a legitimately shifted signal."""
+    """DATA-04: validate_pit_compliance passes for a legitimately shifted signal.
+
+    Construction: returns[t] = signal[t-1] + small_noise.
+    - contemp_ic = corr(signal[t], returns[t]) = corr(signal[t], signal[t-1]+noise) ≈ 0
+    - forward_ic = corr(signal[t], returns[t+1]) = corr(signal[t], signal[t]+noise) ≈ high
+
+    This satisfies the 1.5x threshold (forward_ic >> contemp_ic), so no error is raised.
+    """
     from src.data.pit_manager import validate_pit_compliance
 
     import numpy as np
 
     rng = np.random.default_rng(42)
-    n = 200
+    n = 500
     idx = pd.date_range("2024-01-01", periods=n, freq="D", tz="UTC")
 
-    # Returns: random walk increments
-    returns = pd.Series(rng.normal(0, 0.001, n), index=idx)
+    signal = pd.Series(rng.normal(0, 1.0, n), index=idx)
 
-    # Signal: lagged returns (forward-looking relative to price, not look-ahead)
-    # Use returns.shift(1) as signal so contemp_ic is near zero
-    signal = returns.shift(1).fillna(0)
+    # returns[t] = signal[t-1] + tiny noise
+    # So forward_ic = corr(signal[t], returns[t+1]) = corr(signal[t], signal[t]+noise) ≈ 1
+    # And contemp_ic = corr(signal[t], returns[t]) = corr(signal[t], signal[t-1]+noise) ≈ 0
+    noise = pd.Series(rng.normal(0, 0.05, n), index=idx)
+    returns = signal.shift(1) + noise  # returns[t] = signal[t-1] + noise
+
     signal_df = pd.DataFrame({"signal": signal}, index=idx)
-    price_df = pd.DataFrame({"returns": returns}, index=idx)
+    price_df = pd.DataFrame({"returns": returns.fillna(0)}, index=idx)
 
-    # Should NOT raise (low contemp_ic, some forward_ic)
     result = validate_pit_compliance(signal_df, price_df)
     assert result is True
 
