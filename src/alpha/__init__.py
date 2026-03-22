@@ -1,5 +1,6 @@
 """Helix alpha engines — regime detection, cointegration, carry, and ML momentum."""
 
+from src.alpha.orchestrator import CrossAssetCache, RegimeOrchestrator
 from src.alpha.signal_types import (
     CONFIGURED_PAIRS,
     CROSS_ASSET_SYMBOLS,
@@ -16,4 +17,6 @@ __all__ = [
     "REGIME_ACTIVATION",
     "CONFIGURED_PAIRS",
     "CROSS_ASSET_SYMBOLS",
+    "RegimeOrchestrator",
+    "CrossAssetCache",
 ]

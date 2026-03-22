@@ -26,7 +26,11 @@ def _make_signal(symbol: str, engine: str, regime: RegimeState) -> SignalRow:
 
 
 def _make_orchestrator(regime: RegimeState, confidence: float = 0.85) -> tuple:
-    """Create a RegimeOrchestrator with mocked dependencies."""
+    """Create a RegimeOrchestrator with mocked dependencies.
+
+    The orchestrator is initialized with `initial_regime=regime` so it starts
+    in the target regime without needing the hysteresis period to settle.
+    """
     from src.alpha.orchestrator import RegimeOrchestrator
 
     mock_filter = MagicMock()
@@ -61,6 +65,7 @@ def _make_orchestrator(regime: RegimeState, confidence: float = 0.85) -> tuple:
         regime_filter=mock_filter,
         calibration_service=mock_calibration,
         engines=engines,
+        initial_regime=regime,
     )
     return orchestrator, engines, mock_filter, mock_calibration
 
