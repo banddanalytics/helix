@@ -1,7 +1,4 @@
-"""Tests for ArcticDB store initialization and schema definitions.
-
-TDD RED phase — these tests will fail until arctic_store.py and schemas.py are created.
-"""
+"""Tests for ArcticDB store initialization and schema definitions."""
 from __future__ import annotations
 
 import io
@@ -20,6 +17,7 @@ from src.data import (
     initialize_store,
     reset_store,
 )
+from src.data.admin_cli import main as admin_main
 
 
 @pytest.fixture(autouse=True)
@@ -130,3 +128,22 @@ def test_library_names_has_exactly_six(tmp_path):
     expected = {"forex_ticks", "forex_bars", "swap_rates", "mbo_ticks", "signals", "portfolio"}
     assert set(LIBRARY_NAMES) == expected
     assert len(LIBRARY_NAMES) == 6
+
+
+# ---------------------------------------------------------------------------
+# Task 2 tests
+# ---------------------------------------------------------------------------
+
+
+def test_admin_cli_list_libraries(tmp_path):
+    """Admin CLI list-libraries outputs all 6 library names."""
+    uri = make_uri(tmp_path)
+    initialize_store(uri)
+
+    buffer = io.StringIO()
+    with redirect_stdout(buffer):
+        admin_main(["--uri", uri, "list-libraries"])
+
+    output = buffer.getvalue()
+    for name in LIBRARY_NAMES:
+        assert name in output, f"Expected library {name!r} in CLI output, got:\n{output}"
