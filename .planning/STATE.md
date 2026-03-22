@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-03-PLAN.md — Regime recalibration service with two-gate validation
-last_updated: "2026-03-22T10:27:48.617Z"
+stopped_at: Completed 03-04-PLAN.md — Johansen cointegration engine with z-score signals and health monitor
+last_updated: "2026-03-22T10:33:25.481Z"
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 21
-  completed_plans: 16
+  completed_plans: 17
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 ## Current Position
 
 Phase: 03 (alpha-engines) — EXECUTING
-Plan: 4 of 8
+Plan: 5 of 8
 
 ## Performance Metrics
 
@@ -61,6 +61,7 @@ Plan: 4 of 8
 | Phase 03-alpha-engines P01 | 193 | 2 tasks | 11 files |
 | Phase 03-alpha-engines P02 | 273 | 2 tasks | 6 files |
 | Phase 03-alpha-engines P03 | 182 | 2 tasks | 5 files |
+| Phase 03-alpha-engines P04 | 233 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -105,6 +106,8 @@ Recent decisions affecting current work:
 - [Phase 03-alpha-engines]: OnlineRegimeFilter uses log-space fallback for numerical underflow when forward variable underflows to zero
 - [Phase 03-alpha-engines]: RecalibrationService holds reference to active detector and swaps atomically via apply_pending() — pending model never active until explicitly applied
 - [Phase 03-alpha-engines]: Dirichlet smoothing applied post-fit by adding concentration scalar then row-normalizing — no zero transition probabilities without modifying HMMGARCHRegimeDetector.fit()
+- [Phase 03-alpha-engines]: Johansen eigenvector hedge ratio uses -evec[0,0]/evec[1,0]: plan spec had [1,0]/[0,0] which produced ~1.25 instead of ~0.8 — corrected via empirical verification
+- [Phase 03-alpha-engines]: test_cointegration() imported as johansen_test alias in test file to prevent pytest collecting the re-exported function as a test item
 
 ### Pending Todos
 
@@ -124,6 +127,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T10:27:48.601Z
-Stopped at: Completed 03-03-PLAN.md — Regime recalibration service with two-gate validation
+Last session: 2026-03-22T10:33:25.478Z
+Stopped at: Completed 03-04-PLAN.md — Johansen cointegration engine with z-score signals and health monitor
 Resume file: None
