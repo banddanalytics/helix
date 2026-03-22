@@ -102,16 +102,14 @@ def test_shap_values_sum_to_output() -> None:
     assert len(result["top_5"]) <= 5
 
     # Verify SHAP identity: shap_values.sum(axis=1) + expected_value ≈ model raw output
-    explainer = shap.Explainer(xgb_model.model)
-    shap_values = explainer(X_val)
+    # Use get_booster() for XGBoost 3.x / shap 0.49.x compatibility.
+    explainer = shap.TreeExplainer(xgb_model.model.get_booster())
+    shap_values = explainer.shap_values(X_val)
 
-    expected_value = float(
-        explainer.expected_value[0]
-        if hasattr(explainer.expected_value, "__len__")
-        else explainer.expected_value
-    )
+    ev = explainer.expected_value
+    expected_value = float(ev[0] if hasattr(ev, "__len__") else ev)
 
-    shap_sums = shap_values.values.sum(axis=1) + expected_value
+    shap_sums = shap_values.sum(axis=1) + expected_value
     raw_output = xgb_model.model.get_booster().predict(
         __import__("xgboost").DMatrix(X_val), output_margin=True
     )

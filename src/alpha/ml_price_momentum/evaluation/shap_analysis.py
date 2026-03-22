@@ -39,10 +39,13 @@ class SHAPAnalyzer:
             top_5              : list[str]          — top 5 feature names by importance
             expected_value     : float              — SHAP baseline (model output for empty input)
         """
-        explainer = shap.Explainer(xgb_model)
-        shap_values = explainer(X_test)
+        # Use get_booster() for XGBoost 3.x / shap 0.49.x compatibility.
+        # shap.Explainer auto-detection and TreeExplainer(classifier) both fail
+        # when XGBoost 3.x serialises base_score as '[5E-1]' instead of '0.5'.
+        explainer = shap.TreeExplainer(xgb_model.get_booster())
+        shap_values = explainer.shap_values(X_test)
 
-        mean_abs_shap = np.abs(shap_values.values).mean(axis=0)
+        mean_abs_shap = np.abs(shap_values).mean(axis=0)
 
         feature_importance: dict[str, float] = {
             name: float(mean_abs_shap[i])
@@ -52,11 +55,8 @@ class SHAPAnalyzer:
         sorted_features = sorted(feature_importance, key=lambda k: feature_importance[k], reverse=True)
         top_5 = sorted_features[:5]
 
-        expected_value = float(
-            explainer.expected_value[0]
-            if hasattr(explainer.expected_value, "__len__")
-            else explainer.expected_value
-        )
+        ev = explainer.expected_value
+        expected_value = float(ev[0] if hasattr(ev, "__len__") else ev)
 
         return {
             "feature_importance": feature_importance,
