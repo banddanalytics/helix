@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-02-PLAN.md — HMM-GARCH regime detector core implementation
-last_updated: "2026-03-22T10:22:36.195Z"
+stopped_at: Completed 03-03-PLAN.md — Regime recalibration service with two-gate validation
+last_updated: "2026-03-22T10:27:48.617Z"
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 21
-  completed_plans: 15
+  completed_plans: 16
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 ## Current Position
 
 Phase: 03 (alpha-engines) — EXECUTING
-Plan: 3 of 8
+Plan: 4 of 8
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Plan: 3 of 8
 | Phase 02-data-engineering P06 | 200 | 2 tasks | 9 files |
 | Phase 03-alpha-engines P01 | 193 | 2 tasks | 11 files |
 | Phase 03-alpha-engines P02 | 273 | 2 tasks | 6 files |
+| Phase 03-alpha-engines P03 | 182 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -102,6 +103,8 @@ Recent decisions affecting current work:
 - [Phase 03-alpha-engines]: Test stubs use pytest.mark.skip (not xfail) — missing implementations are immediately visible rather than silently passing as expected failures
 - [Phase 03-alpha-engines]: Gaussian fallback for states with fewer than 100 GARCH samples uses stationary synthetic params (omega=var*0.05, alpha=0.05, beta=0.90)
 - [Phase 03-alpha-engines]: OnlineRegimeFilter uses log-space fallback for numerical underflow when forward variable underflows to zero
+- [Phase 03-alpha-engines]: RecalibrationService holds reference to active detector and swaps atomically via apply_pending() — pending model never active until explicitly applied
+- [Phase 03-alpha-engines]: Dirichlet smoothing applied post-fit by adding concentration scalar then row-normalizing — no zero transition probabilities without modifying HMMGARCHRegimeDetector.fit()
 
 ### Pending Todos
 
@@ -121,6 +124,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T10:22:36.191Z
-Stopped at: Completed 03-02-PLAN.md — HMM-GARCH regime detector core implementation
+Last session: 2026-03-22T10:27:48.601Z
+Stopped at: Completed 03-03-PLAN.md — Regime recalibration service with two-gate validation
 Resume file: None
