@@ -61,11 +61,13 @@ def test_volatility_shape_and_finite(bar_arrays: dict[str, np.ndarray]) -> None:
     result = compute_volatility_features(c, h, lo)
 
     assert result.shape == (len(c), 6), f"Expected ({len(c)}, 6), got {result.shape}"
-    assert np.all(np.isfinite(result[63:])), "Non-finite values found after warmup at index 63"
+    # Warmup is 64 (not 63) because lr[0] is undefined — first full 63-bar window
+    # starts at index 64 where lr[1:64] is available.
+    assert np.all(np.isfinite(result[64:])), "Non-finite values found after warmup at index 64"
     # Vol values (cols 0-2) should be non-negative after warmup
-    assert np.all(result[63:, 0] >= 0), "Negative realized vol (5-bar) found"
-    assert np.all(result[63:, 1] >= 0), "Negative realized vol (22-bar) found"
-    assert np.all(result[63:, 2] >= 0), "Negative realized vol (63-bar) found"
+    assert np.all(result[64:, 0] >= 0), "Negative realized vol (5-bar) found"
+    assert np.all(result[64:, 1] >= 0), "Negative realized vol (22-bar) found"
+    assert np.all(result[64:, 2] >= 0), "Negative realized vol (63-bar) found"
 
 
 def test_session_shape_and_session_ids(bar_arrays: dict[str, np.ndarray]) -> None:
@@ -83,8 +85,9 @@ def test_session_shape_and_session_ids(bar_arrays: dict[str, np.ndarray]) -> Non
     )
 
     assert result.shape == (n, 5), f"Expected ({n}, 5), got {result.shape}"
-    # session_id column (col 0) must be in {0, 1, 2, 3}
-    session_ids = result[:, 0].astype(np.int64)
+    # session_id column (col 0) must be in {0, 1, 2, 3} for valid rows (index >= 1)
+    # Row 0 is NaN (no prior bar to look back to — this is correct PiT behavior)
+    session_ids = result[1:, 0].astype(np.int64)
     assert np.all((session_ids >= 0) & (session_ids <= 3)), (
         f"session_id out of range [0,3]: {np.unique(session_ids)}"
     )
