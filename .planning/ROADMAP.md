@@ -92,8 +92,18 @@ Plans:
   2. Circuit breakers fire at correct thresholds: L1 at 2% daily drawdown reduces Kelly to 50%, L2 at 5% flattens positions and pauses for 1 hour, L3 at 10% disables all strategies and requires manual restart
   3. An underperforming strategy is sandboxed to the virtual executor by ECT and restores to live at 50% Kelly after 10 consecutive recovery bars, scaling to 100% over 20 bars
   4. NATS JetStream publishes all 7 subjects at the specified intervals (PnL at 100ms, positions at 1s, risk at 1s, regime at 5s, orders on-event), and the React dashboard receives and displays them with no re-render thrash
-  5. The React host shell loads all 6 remote modules via Module Federation; an error in one remote does not crash the shell or other remotes
-**Plans**: TBD
+  5. The Next.js App Router dashboard loads all 7 route-based views with per-route error boundaries; an error in one route does not crash sibling routes
+**Plans:** 8 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — CVaR computation: historical, parametric, Cornish-Fisher, spread-adjusted
+- [ ] 04-02-PLAN.md — Next.js dashboard scaffold: App Router, shadcn/ui dark theme, 7 routes
+- [ ] 04-03-PLAN.md — CVXPY portfolio optimizer and Kelly criterion with regime multipliers
+- [ ] 04-04-PLAN.md — TelemetryState dataclass, NATS publisher, and server configuration
+- [ ] 04-05-PLAN.md — ECT strategy sandboxing and circuit breaker state machine
+- [ ] 04-06-PLAN.md — useNatsSubscription hook and dashboard route pages with data views
+- [ ] 04-07-PLAN.md — RiskEngine facade and RegimeOrchestrator integration
+- [ ] 04-08-PLAN.md — Dashboard build verification and visual checkpoint
 
 ### Phase 5: Integration & Production
 **Goal**: The complete pipeline is validated end-to-end in shadow mode, deployed to live markets with graduated sizing, and Stage B infrastructure is ready to activate when trigger conditions are met
@@ -116,5 +126,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Foundation | 3/7 | In Progress|  |
 | 2. Data Engineering | 6/6 | Complete   | 2026-03-22 |
 | 3. Alpha Engines | 10/10 | Complete   | 2026-03-22 |
-| 4. Risk, IPC & Dashboard | 0/TBD | Not started | - |
+| 4. Risk, IPC & Dashboard | 0/8 | Not started | - |
 | 5. Integration & Production | 0/TBD | Not started | - |
