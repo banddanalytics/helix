@@ -122,41 +122,72 @@ def test_viterbi_decode_output_length() -> None:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.skip(reason="Stub — implementation in plan 03-02")
-def test_hmm_garch_fits_three_states(synthetic_returns: object) -> None:
+def test_hmm_garch_fits_three_states(synthetic_returns: np.ndarray) -> None:
     """ALPH-01: HMMGARCHRegimeDetector.fit() identifies 3 distinct states on synthetic data.
 
     Verifies that fitting on regime-switching synthetic returns produces
     exactly 3 distinct state labels with no degenerate (zero-mass) states.
     """
-    raise AssertionError("Not yet implemented")
+    from src.alpha.regime.hmm_garch import HMMGARCHRegimeDetector
+
+    detector = HMMGARCHRegimeDetector(n_states=3, random_state=0)
+    success = detector.fit(synthetic_returns)
+    assert success is True, "fit() should return True on convergence"
+    assert detector.is_fitted
+    assert len(detector.garch_params) == 3
 
 
-@pytest.mark.skip(reason="Stub — implementation in plan 03-02")
-def test_garch_stationarity_constraint(synthetic_returns: object) -> None:
+def test_garch_stationarity_constraint(synthetic_returns: np.ndarray) -> None:
     """ALPH-02: GARCH stationarity gate — alpha + beta < 1 for all states.
 
     For each fitted GARCH state, verifies the persistence constraint
     alpha_i + beta_i < 1 (i.e., unconditional variance is finite).
     """
-    raise AssertionError("Not yet implemented")
+    from src.alpha.regime.hmm_garch import HMMGARCHRegimeDetector
+
+    detector = HMMGARCHRegimeDetector(n_states=3, random_state=0)
+    detector.fit(synthetic_returns)
+    assert all(p.is_stationary for p in detector.garch_params), (
+        "All GARCH states must satisfy alpha + beta < 1"
+    )
 
 
-@pytest.mark.skip(reason="Stub — implementation in plan 03-02")
-def test_states_sorted_by_ascending_variance(synthetic_returns: object) -> None:
+def test_states_sorted_by_ascending_variance(synthetic_returns: np.ndarray) -> None:
     """ALPH-02: States ordered by ascending unconditional variance omega/(1-alpha-beta).
 
     State 0 must have the lowest unconditional variance (trending/low-vol),
     state 2 the highest (crisis/high-vol).
     """
-    raise AssertionError("Not yet implemented")
+    from src.alpha.regime.hmm_garch import HMMGARCHRegimeDetector
+
+    detector = HMMGARCHRegimeDetector(n_states=3, random_state=0)
+    detector.fit(synthetic_returns)
+    variances = [p.unconditional_variance for p in detector.garch_params]
+    assert variances[0] < variances[1] < variances[2], (
+        f"States must be sorted by ascending variance, got {variances}"
+    )
 
 
-@pytest.mark.skip(reason="Stub — implementation in plan 03-02")
-def test_online_prediction_matches_viterbi(synthetic_returns: object) -> None:
+def test_online_prediction_matches_viterbi(synthetic_returns: np.ndarray) -> None:
     """ALPH-01: Online forward-filter prediction agrees with Viterbi path >90% of bars.
 
     Online predictions (causal, uses only past data) should agree with
     the batch Viterbi decoded path on at least 90% of samples.
     """
-    raise AssertionError("Not yet implemented")
+    from src.alpha.regime.hmm_garch import HMMGARCHRegimeDetector
+    from src.alpha.regime.online_filter import OnlineRegimeFilter
+
+    detector = HMMGARCHRegimeDetector(n_states=3, random_state=0)
+    detector.fit(synthetic_returns)
+
+    # Offline Viterbi reference
+    viterbi_states = detector.predict_viterbi(synthetic_returns)
+
+    # Online forward filter
+    filt = OnlineRegimeFilter(detector)
+    online_states = np.array(
+        [int(filt.update(r)[0]) for r in synthetic_returns]
+    )
+
+    agreement = np.mean(online_states == viterbi_states)
+    assert agreement > 0.90, f"Online vs Viterbi agreement {agreement:.2%} < 90%"
