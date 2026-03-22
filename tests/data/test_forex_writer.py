@@ -77,7 +77,7 @@ def test_timer_flush_at_1s(arctic_uri: str) -> None:
     writer.start()
     try:
         for i in range(100):
-            writer.write(make_tick(bid=1.1000 + i * 0.00001, ts=f"2024-01-03T10:00:{i:02d}"))
+            writer.write(make_tick(bid=1.1000 + i * 0.00001, ts=f"2024-01-03T10:{i // 60:02d}:{i % 60:02d}"))
 
         # Wait for timer flush (FLUSH_SECONDS + buffer)
         time.sleep(FLUSH_SECONDS + 0.5)
