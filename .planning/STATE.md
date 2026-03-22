@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 02-data-engineering-03-PLAN.md — TickWriter with batch flush and quality flagging
-last_updated: "2026-03-22T07:42:29.798Z"
+stopped_at: Completed 02-data-engineering-05-PLAN.md — PiT manager, snapshot scheduler, 8 tests passing
+last_updated: "2026-03-22T07:42:35.533Z"
 progress:
   total_phases: 5
   completed_phases: 1
@@ -90,6 +90,8 @@ Recent decisions affecting current work:
 - [Phase 02-data-engineering]: SwapWriter uses asyncio.to_thread for ArcticDB I/O — keeps event loop non-blocking without APScheduler dependency
 - [Phase 02-data-engineering]: TickWriter caches single ArcticDB store instance per object to avoid LMDB multi-open warning
 - [Phase 02-data-engineering]: Duplicate detection requires both index.duplicated AND df.duplicated(subset=bid/ask) — timestamp alone is insufficient since legitimate ticks can share a timestamp
+- [Phase 02-data-engineering]: pit_read uses ArcticDB native date_range=(None, as_of_timestamp) for PiT cutoff per D-11
+- [Phase 02-data-engineering]: validate_pit_compliance uses IC analysis with 1.5x threshold — contemp_ic > forward_ic * 1.5 signals look-ahead bias per D-13
 
 ### Pending Todos
 
@@ -102,6 +104,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T07:42:25.251Z
-Stopped at: Completed 02-data-engineering-03-PLAN.md — TickWriter with batch flush and quality flagging
+Last session: 2026-03-22T07:42:35.527Z
+Stopped at: Completed 02-data-engineering-05-PLAN.md — PiT manager, snapshot scheduler, 8 tests passing
 Resume file: None
