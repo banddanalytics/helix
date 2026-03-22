@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 02-data-engineering-01-PLAN.md — Wave 0 env setup, numba stub, test scaffolds
-last_updated: "2026-03-22T07:37:18.533Z"
+stopped_at: Completed 02-data-engineering-04-PLAN.md — BarAggregator 6 timeframes, session tagging, SwapWriter
+last_updated: "2026-03-22T07:41:23.213Z"
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 13
-  completed_plans: 9
+  completed_plans: 10
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 ## Current Position
 
 Phase: 02 (data-engineering) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Plan: 3 of 6
 | Phase 01-foundation P06 | 3 | 2 tasks | 6 files |
 | Phase 02-data-engineering P02 | 3 | 2 tasks | 6 files |
 | Phase 02-data-engineering P01 | 10 | 2 tasks | 10 files |
+| Phase 02-data-engineering P04 | 110s | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,8 @@ Recent decisions affecting current work:
 - [Phase 02-data-engineering]: LMDB backend fixed at ./arctic_data, no env-var switching per D-01/D-02
 - [Phase 02-data-engineering]: Schema constants are plain dict[str, str] — documentation only, ArcticDB infers schema from first DataFrame write
 - [Phase 02-01]: numba_stubs.py uses same flat dict {lib -> {func -> set_of_kwargs}} format as arcticdb_stubs.py — consistent pattern across all KCH stubs
+- [Phase 02-data-engineering]: aggregate_bars() uses pandas mid-price resample().ohlc() — single pass, vectorized, no custom loops
+- [Phase 02-data-engineering]: SwapWriter uses asyncio.to_thread for ArcticDB I/O — keeps event loop non-blocking without APScheduler dependency
 
 ### Pending Todos
 
@@ -95,6 +98,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T07:37:18.530Z
-Stopped at: Completed 02-data-engineering-01-PLAN.md — Wave 0 env setup, numba stub, test scaffolds
+Last session: 2026-03-22T07:41:23.205Z
+Stopped at: Completed 02-data-engineering-04-PLAN.md — BarAggregator 6 timeframes, session tagging, SwapWriter
 Resume file: None
