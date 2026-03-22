@@ -34,6 +34,7 @@ module = [
     "statsmodels.*",
     "numba.*",
     "psutil.*",
+    "shap.*",
 ]
 ignore_missing_imports = true
 
