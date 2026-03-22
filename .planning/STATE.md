@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 02-data-engineering-02-PLAN.md — ArcticDB store init, 6 libraries, schema constants, admin CLI
-last_updated: "2026-03-22T07:36:28.869Z"
+stopped_at: Completed 02-data-engineering-01-PLAN.md — Wave 0 env setup, numba stub, test scaffolds
+last_updated: "2026-03-22T07:37:18.533Z"
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 13
-  completed_plans: 8
+  completed_plans: 9
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 ## Current Position
 
 Phase: 02 (data-engineering) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Plan: 2 of 6
 | Phase 01-foundation P03 | 20 | 2 tasks | 13 files |
 | Phase 01-foundation P06 | 3 | 2 tasks | 6 files |
 | Phase 02-data-engineering P02 | 3 | 2 tasks | 6 files |
+| Phase 02-data-engineering P01 | 10 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -81,6 +82,7 @@ Recent decisions affecting current work:
 - [Phase 02-data-engineering]: Module-level singleton (not lru_cache) for ArcticDB store — reset_store() allows test injection of tmp paths
 - [Phase 02-data-engineering]: LMDB backend fixed at ./arctic_data, no env-var switching per D-01/D-02
 - [Phase 02-data-engineering]: Schema constants are plain dict[str, str] — documentation only, ArcticDB infers schema from first DataFrame write
+- [Phase 02-01]: numba_stubs.py uses same flat dict {lib -> {func -> set_of_kwargs}} format as arcticdb_stubs.py — consistent pattern across all KCH stubs
 
 ### Pending Todos
 
@@ -93,6 +95,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T07:36:28.866Z
-Stopped at: Completed 02-data-engineering-02-PLAN.md — ArcticDB store init, 6 libraries, schema constants, admin CLI
+Last session: 2026-03-22T07:37:18.530Z
+Stopped at: Completed 02-data-engineering-01-PLAN.md — Wave 0 env setup, numba stub, test scaffolds
 Resume file: None

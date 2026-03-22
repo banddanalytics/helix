@@ -29,12 +29,12 @@
 ### Data Engineering
 
 - [x] **DATA-01**: ArcticDB initialized with 6 libraries (forex_ticks, forex_bars, swap_rates, mbo_ticks stub, signals, portfolio)
-- [ ] **DATA-02**: Forex tick writer batches 10K ticks, flushes every 1s, never blocks execution adapter
-- [ ] **DATA-03**: Bar aggregator produces 6 timeframes (1m/5m/15m/1h/4h/1d) with session tagging
-- [ ] **DATA-04**: PiT manager prevents all 5 look-ahead bias vectors; pit_read returns only data ≤ as_of_timestamp
-- [ ] **DATA-05**: ArcticDB snapshots enable reproducible backtests at any historical date
-- [ ] **DATA-06**: VectorBT Pro + Numba single-pass backtester with spread cost parameter
-- [ ] **DATA-07**: Numba warmup service compiles all JIT functions at startup; cached run < 5s
+- [x] **DATA-02**: Forex tick writer batches 10K ticks, flushes every 1s, never blocks execution adapter
+- [x] **DATA-03**: Bar aggregator produces 6 timeframes (1m/5m/15m/1h/4h/1d) with session tagging
+- [x] **DATA-04**: PiT manager prevents all 5 look-ahead bias vectors; pit_read returns only data ≤ as_of_timestamp
+- [x] **DATA-05**: ArcticDB snapshots enable reproducible backtests at any historical date
+- [x] **DATA-06**: VectorBT Pro + Numba single-pass backtester with spread cost parameter
+- [x] **DATA-07**: Numba warmup service compiles all JIT functions at startup; cached run < 5s
 
 ### Alpha Engines
 
@@ -134,12 +134,12 @@
 | EXEC-06 | Phase 1 | Pending |
 | EXEC-07 | Phase 1 | Pending |
 | DATA-01 | Phase 2 | Complete |
-| DATA-02 | Phase 2 | Pending |
-| DATA-03 | Phase 2 | Pending |
-| DATA-04 | Phase 2 | Pending |
-| DATA-05 | Phase 2 | Pending |
-| DATA-06 | Phase 2 | Pending |
-| DATA-07 | Phase 2 | Pending |
+| DATA-02 | Phase 2 | Complete |
+| DATA-03 | Phase 2 | Complete |
+| DATA-04 | Phase 2 | Complete |
+| DATA-05 | Phase 2 | Complete |
+| DATA-06 | Phase 2 | Complete |
+| DATA-07 | Phase 2 | Complete |
 | ALPH-01 | Phase 3 | Pending |
 | ALPH-02 | Phase 3 | Pending |
 | ALPH-03 | Phase 3 | Pending |
