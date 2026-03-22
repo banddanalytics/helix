@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-09-PLAN.md — Coverage omit list for Numba files and slow test exclusion in pytest addopts
-last_updated: "2026-03-22T15:49:56.460Z"
+stopped_at: Completed 03-10-PLAN.md — 14 direct unit tests for OnlineRegimeFilter, WalkForwardEngine, and orchestrator persist methods
+last_updated: "2026-03-22T15:54:30.767Z"
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 23
-  completed_plans: 22
+  completed_plans: 23
 ---
 
 # Project State
@@ -67,6 +67,7 @@ Plan: 2 of 2
 | Phase 03-alpha-engines P07 | 91 | 2 tasks | 10 files |
 | Phase 03-alpha-engines P08 | 4 | 2 tasks | 3 files |
 | Phase 03-alpha-engines P09 | 97 | 2 tasks | 1 files |
+| Phase 03-alpha-engines P10 | 157 | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -125,6 +126,8 @@ Recent decisions affecting current work:
 - [Phase 03-alpha-engines]: RegimeOrchestrator owns 20-bar hysteresis dwell and CRISIS reduce-only gating — engines have no regime awareness (D-06)
 - [Phase 03-alpha-engines]: Numba @njit source files omitted from coverage measurement — coverage.py cannot trace JIT-compiled code; files are fully tested via FeatureBuilder end-to-end tests
 - [Phase 03-alpha-engines]: Default pytest addopts excludes slow-marked tests via -m 'not slow' — performance benchmark runs only on explicit invocation, unblocking CI
+- [Phase 03-alpha-engines]: patch deferred imports via source module path (src.data.arctic_store.get_library) — get_library is imported inside method body not at module level
+- [Phase 03-alpha-engines]: fitted_filter test fixture is function-scoped to match synthetic_returns fixture scope — module-scope causes ScopeMismatch
 
 ### Pending Todos
 
@@ -144,6 +147,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T15:49:56.456Z
-Stopped at: Completed 03-09-PLAN.md — Coverage omit list for Numba files and slow test exclusion in pytest addopts
+Last session: 2026-03-22T15:54:30.763Z
+Stopped at: Completed 03-10-PLAN.md — 14 direct unit tests for OnlineRegimeFilter, WalkForwardEngine, and orchestrator persist methods
 Resume file: None
