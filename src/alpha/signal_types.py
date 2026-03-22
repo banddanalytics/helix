@@ -22,12 +22,12 @@ class SignalRow:
 
     symbol: str
     engine: str
-    direction: np.int8  # +1 / 0 / -1
-    strength: np.float32  # [0, 1]
-    regime: np.int8  # RegimeState value at signal time
-    z_score: np.float32 | None = None  # cointegration engine
-    ml_prob: np.float32 | None = None  # ML engine
-    carry_rank: np.float32 | None = None  # carry engine
+    direction: int  # int8: +1 / 0 / -1
+    strength: float  # float32 [0, 1]
+    regime: int  # int8, current RegimeState value at signal time
+    z_score: float | None = None  # cointegration engine
+    ml_prob: float | None = None  # ML engine
+    carry_rank: float | None = None  # carry engine
 
 
 SIGNAL_COLUMNS: list[str] = [
@@ -41,6 +41,41 @@ SIGNAL_COLUMNS: list[str] = [
     "carry_rank",
 ]
 
+# Engine activation per regime (D-05)
+REGIME_ACTIVATION: dict[RegimeState, list[str]] = {
+    RegimeState.TRENDING: ["ml_engine", "carry_engine"],
+    RegimeState.MEAN_REVERTING: ["cointegration_engine"],
+    RegimeState.CRISIS: [],
+}
+
+# Configured cointegration pairs (D-04)
+CONFIGURED_PAIRS: list[tuple[str, str]] = [
+    ("AUDUSD", "NZDUSD"),
+    ("EURUSD", "GBPUSD"),
+    ("USDJPY", "USDCHF"),
+]
+
+# All cross-asset symbols tracked by the system
+CROSS_ASSET_SYMBOLS: list[str] = [
+    "EURUSD",
+    "GBPUSD",
+    "AUDUSD",
+    "NZDUSD",
+    "USDJPY",
+    "USDCHF",
+]
+
 # ArcticDB symbol naming patterns
 ENGINE_SYMBOL_PATTERN: str = "{engine}_{symbol}"  # D-02
 REGIME_SYMBOL_PATTERN: str = "regime_{symbol}"  # D-03
+
+__all__ = [
+    "RegimeState",
+    "SignalRow",
+    "SIGNAL_COLUMNS",
+    "REGIME_ACTIVATION",
+    "CONFIGURED_PAIRS",
+    "CROSS_ASSET_SYMBOLS",
+    "ENGINE_SYMBOL_PATTERN",
+    "REGIME_SYMBOL_PATTERN",
+]
