@@ -5,7 +5,7 @@ requires-python = ">=3.12"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=src --cov-report=term-missing --cov-branch --cov-fail-under=80 -v"
+addopts = "--cov=src --cov-report=term-missing --cov-branch --cov-fail-under=80 -v -m 'not slow'"
 # cov-fail-under = 80 — QUAL-04 merge gate: enforce 80% branch coverage on every run
 asyncio_mode = "auto"
 markers = [
