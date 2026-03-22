@@ -38,15 +38,15 @@
 
 ### Alpha Engines
 
-- [ ] **ALPH-01**: HMM-GARCH regime detector identifies 3 states (Trending/Mean-Reverting/Crisis) with GARCH stationarity constraint
-- [ ] **ALPH-02**: Regime states sorted by ascending unconditional variance (deterministic across refits)
-- [ ] **ALPH-03**: Weekly Baum-Welch recalibration + 1000-bar GARCH parameter updates
-- [ ] **ALPH-04**: Johansen cointegration engine tests 3 Forex pairs with dynamic hedge ratio (504-bar rolling)
-- [ ] **ALPH-05**: Z-score entry/exit signals fire at ±2.0 with hard stop at ±4.0; half-life monitoring
-- [ ] **ALPH-06**: Swap-based carry provider ranks symbols cross-sectionally, suppresses when spread > carry
-- [ ] **ALPH-07**: 27-feature Numba pipeline (5 tiers: momentum, volatility, session, cross-asset, tick volume) with PiT compliance
-- [ ] **ALPH-08**: Walk-forward XGBoost+RF ensemble (756-bar train, 21-bar step, 30+ OOS windows) with SHAP analysis
-- [ ] **ALPH-09**: Regime gates strategy activation: Trending → ML+Carry, Mean-Reverting → Cointegration, Crisis → reduce only
+- [x] **ALPH-01**: HMM-GARCH regime detector identifies 3 states (Trending/Mean-Reverting/Crisis) with GARCH stationarity constraint
+- [x] **ALPH-02**: Regime states sorted by ascending unconditional variance (deterministic across refits)
+- [x] **ALPH-03**: Weekly Baum-Welch recalibration + 1000-bar GARCH parameter updates
+- [x] **ALPH-04**: Johansen cointegration engine tests 3 Forex pairs with dynamic hedge ratio (504-bar rolling)
+- [x] **ALPH-05**: Z-score entry/exit signals fire at ±2.0 with hard stop at ±4.0; half-life monitoring
+- [x] **ALPH-06**: Swap-based carry provider ranks symbols cross-sectionally, suppresses when spread > carry
+- [x] **ALPH-07**: 27-feature Numba pipeline (5 tiers: momentum, volatility, session, cross-asset, tick volume) with PiT compliance
+- [x] **ALPH-08**: Walk-forward XGBoost+RF ensemble (756-bar train, 21-bar step, 30+ OOS windows) with SHAP analysis
+- [x] **ALPH-09**: Regime gates strategy activation: Trending → ML+Carry, Mean-Reverting → Cointegration, Crisis → reduce only
 
 ### Risk Management
 
@@ -140,15 +140,15 @@
 | DATA-05 | Phase 2 | Complete |
 | DATA-06 | Phase 2 | Complete |
 | DATA-07 | Phase 2 | Complete |
-| ALPH-01 | Phase 3 | Pending |
-| ALPH-02 | Phase 3 | Pending |
-| ALPH-03 | Phase 3 | Pending |
-| ALPH-04 | Phase 3 | Pending |
-| ALPH-05 | Phase 3 | Pending |
-| ALPH-06 | Phase 3 | Pending |
-| ALPH-07 | Phase 3 | Pending |
-| ALPH-08 | Phase 3 | Pending |
-| ALPH-09 | Phase 3 | Pending |
+| ALPH-01 | Phase 3 | Complete |
+| ALPH-02 | Phase 3 | Complete |
+| ALPH-03 | Phase 3 | Complete |
+| ALPH-04 | Phase 3 | Complete |
+| ALPH-05 | Phase 3 | Complete |
+| ALPH-06 | Phase 3 | Complete |
+| ALPH-07 | Phase 3 | Complete |
+| ALPH-08 | Phase 3 | Complete |
+| ALPH-09 | Phase 3 | Complete |
 | RISK-01 | Phase 4 | Pending |
 | RISK-02 | Phase 4 | Pending |
 | RISK-03 | Phase 4 | Pending |
