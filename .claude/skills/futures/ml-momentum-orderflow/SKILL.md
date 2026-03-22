@@ -35,15 +35,15 @@ def compute_ofi(prices: np.ndarray, bid_qty: np.ndarray, ask_qty: np.ndarray,
                 bid_price: np.ndarray, ask_price: np.ndarray) -> np.ndarray:
     """
     Order Flow Imbalance (OFI) — measures net buying/selling pressure.
-    
+
     OFI_t = ΔBid_t - ΔAsk_t
     where ΔBid_t = bid_qty_t·I(bid_price_t ≥ bid_price_{t-1}) - bid_qty_{t-1}·I(bid_price_t ≤ bid_price_{t-1})
-    
+
     PiT: Uses data at t and t-1, signal applied at t+1 via external .shift(1)
     """
     n = len(prices)
     ofi = np.zeros(n)
-    
+
     for t in range(1, n):
         # Bid side contribution
         if bid_price[t] >= bid_price[t-1]:
@@ -52,7 +52,7 @@ def compute_ofi(prices: np.ndarray, bid_qty: np.ndarray, ask_qty: np.ndarray,
             delta_bid = -bid_qty[t-1]
         else:
             delta_bid = bid_qty[t] - bid_qty[t-1]
-        
+
         # Ask side contribution
         if ask_price[t] <= ask_price[t-1]:
             delta_ask = ask_qty[t]
@@ -60,9 +60,9 @@ def compute_ofi(prices: np.ndarray, bid_qty: np.ndarray, ask_qty: np.ndarray,
             delta_ask = -ask_qty[t-1]
         else:
             delta_ask = ask_qty[t] - ask_qty[t-1]
-        
+
         ofi[t] = delta_bid - delta_ask
-    
+
     return ofi
 ```
 
@@ -76,54 +76,54 @@ FEATURE_DEFINITIONS = {
         'window': '50 volume bars',
         'pit_shift': True
     },
-    
+
     # Trade flow toxicity (Kyle's lambda proxy)
     'kyle_lambda': {
         'formula': 'λ = ΔP / ΔOF  (price impact per unit of order flow)',
         'window': 'rolling 100 ticks',
         'pit_shift': True
     },
-    
+
     # Book depth imbalance at N levels
     'depth_imbalance_L5': {
         'formula': 'DI = (Σbid_qty[1:5] - Σask_qty[1:5]) / (Σbid_qty[1:5] + Σask_qty[1:5])',
         'window': 'instantaneous (snapshot)',
         'pit_shift': True
     },
-    
+
     # Weighted mid-price pressure
     'microprice': {
         'formula': 'MP = (ask_price · bid_qty + bid_price · ask_qty) / (bid_qty + ask_qty)',
         'window': 'instantaneous',
         'pit_shift': True
     },
-    
+
     # Order arrival rate asymmetry
     'arrival_imbalance': {
         'formula': 'AI = (N_buy_orders - N_sell_orders) / (N_buy + N_sell) per time bucket',
         'window': '1-second buckets, rolling 60s',
         'pit_shift': True
     },
-    
+
     # Large order clustering (institutional footprint)
     'large_order_ratio': {
         'formula': 'LOR = Σ(qty > Q90) / Σ(all qty)  where Q90 = 90th percentile qty',
         'window': 'rolling 500 ticks',
         'pit_shift': True
     },
-    
+
     # Spread dynamics
     'spread_volatility': {
         'formula': 'σ(ask-bid) over rolling window',
         'window': 'rolling 200 ticks',
         'pit_shift': True
     },
-    
+
     # Price momentum features
     'returns_1m': {'formula': 'log(P_t / P_{t-60s})', 'pit_shift': True},
     'returns_5m': {'formula': 'log(P_t / P_{t-300s})', 'pit_shift': True},
     'returns_15m': {'formula': 'log(P_t / P_{t-900s})', 'pit_shift': True},
-    
+
     # Volatility features
     'realized_vol_5m': {'formula': 'sqrt(Σ r²_1s) over 5min', 'pit_shift': True},
     'vol_of_vol': {'formula': 'rolling std of realized_vol_5m', 'pit_shift': True},
@@ -146,27 +146,27 @@ def detect_iceberg_signatures(
 ) -> np.ndarray:
     """
     Detect iceberg order footprints from MBO data.
-    
+
     Iceberg signature: same price level shows repeated new orders of similar size
     immediately after a trade depletes the visible quantity.
-    
+
     Pattern: [Order at P, qty=Q] → [Trade, qty=Q fills] → [New order at P, qty≈Q] → repeat
     """
     n = len(order_ids)
     iceberg_score = np.zeros(n)
-    
+
     # Track replenishment patterns at each price level
     # Simplified: look for sequences of fill-then-replace at same price
     for t in range(2, n):
         if actions[t] == 0:  # New order
             # Check if previous action at this price was a trade (fill)
-            if (actions[t-1] == 3 and 
+            if (actions[t-1] == 3 and
                 abs(prices[t] - prices[t-1]) < 1e-10 and
                 abs(qtys[t] - qtys[t-1]) / max(qtys[t], 1) < 0.2):  # Similar qty
                 # Time gap must be small (< 100ms = automated replenishment)
                 if timestamps[t] - timestamps[t-1] < 100_000_000:  # 100ms in ns
                     iceberg_score[t] = 1.0
-    
+
     return iceberg_score
 ```
 
@@ -188,7 +188,7 @@ Model 1: XGBoost (gradient boosted trees)
   - min_child_weight: 100 (prevent overfitting to noise)
   - reg_alpha: 0.1 (L1 regularization)
   - reg_lambda: 1.0 (L2 regularization)
-  
+
 Model 2: Random Forest
   - n_estimators: 1000
   - max_depth: 8
@@ -211,7 +211,7 @@ Window structure (daily retraining):
   Train: [T-504, T-1]    (2 years of history, PiT compliant)
   Validate: [T-63, T-1]   (last 3 months of train, for early stopping)
   Test: [T, T+21]         (next month, out-of-sample)
-  
+
   Advance T by 21 days, retrain, repeat.
 
 Purge gap: Remove 5 bars between train and test to prevent label leakage
@@ -227,13 +227,13 @@ def compute_feature_importance(model, X_test, feature_names):
     """SHAP-based feature importance for model interpretability."""
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(X_test)
-    
+
     importance = np.abs(shap_values).mean(axis=0)
     ranked = sorted(zip(feature_names, importance), key=lambda x: -x[1])
-    
+
     # Drop features with near-zero SHAP values (noise)
     significant = [(name, imp) for name, imp in ranked if imp > 0.001]
-    
+
     return significant
 ```
 

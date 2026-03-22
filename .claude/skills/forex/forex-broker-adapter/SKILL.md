@@ -182,25 +182,25 @@ import MetaTrader5 as mt5
 class MT5Adapter(MarketDataProvider, OrderExecutor, PositionManager):
     """
     MetaTrader 5 concrete implementation.
-    
+
     Platform constraint: MT5 Python API uses COM interop — Windows only.
     For Linux alpha engines, use the ZeroMQ bridge pattern (see below).
     """
-    
+
     def __init__(self, account: int, password: str, server: str,
                  mt5_path: str | None = None):
         self.account = account
         self.password = password
         self.server = server
         self.mt5_path = mt5_path
-    
+
     def connect(self) -> bool:
         if not mt5.initialize(path=self.mt5_path):
             raise ConnectionError(f"MT5 init failed: {mt5.last_error()}")
         if not mt5.login(self.account, self.password, self.server):
             raise ConnectionError(f"MT5 login failed: {mt5.last_error()}")
         return True
-    
+
     async def get_ticks(self, symbol, start, end):
         ticks = mt5.copy_ticks_range(
             symbol,
@@ -219,7 +219,7 @@ class MT5Adapter(MarketDataProvider, OrderExecutor, PositionManager):
                 source="mt5"
             ) for t in ticks
         ]
-    
+
     async def get_bars(self, symbol, timeframe, count):
         tf_map = {
             "1m": mt5.TIMEFRAME_M1, "5m": mt5.TIMEFRAME_M5,
@@ -240,7 +240,7 @@ class MT5Adapter(MarketDataProvider, OrderExecutor, PositionManager):
                 spread=r['spread'] * info.point
             ) for r in rates
         ]
-    
+
     async def submit_order(self, order):
         info = mt5.symbol_info(order.symbol)
         if info is None:
@@ -248,7 +248,7 @@ class MT5Adapter(MarketDataProvider, OrderExecutor, PositionManager):
                                False, f"Symbol {order.symbol} not found")
         tick = mt5.symbol_info_tick(order.symbol)
         price = tick.ask if order.side == Side.BUY else tick.bid
-        
+
         request = {
             "action": mt5.TRADE_ACTION_DEAL,
             "symbol": order.symbol,
@@ -266,7 +266,7 @@ class MT5Adapter(MarketDataProvider, OrderExecutor, PositionManager):
             request["sl"] = order.stop_loss
         if order.take_profit:
             request["tp"] = order.take_profit
-        
+
         result = mt5.order_send(request)
         if result.retcode != mt5.TRADE_RETCODE_DONE:
             return OrderResult("", 0, 0, 0, 0, np.datetime64('now'),
@@ -276,7 +276,7 @@ class MT5Adapter(MarketDataProvider, OrderExecutor, PositionManager):
             abs(result.price - request["price"]), result.commission,
             np.datetime64('now'), True, None
         )
-    
+
     async def get_positions(self):
         positions = mt5.positions_get()
         if not positions:
@@ -293,7 +293,7 @@ class MT5Adapter(MarketDataProvider, OrderExecutor, PositionManager):
                 margin_used=p.volume * mt5.symbol_info(p.symbol).margin_initial
             ) for p in positions
         ]
-    
+
     async def close_position(self, symbol):
         positions = mt5.positions_get(symbol=symbol)
         if not positions:
@@ -306,18 +306,18 @@ class MT5Adapter(MarketDataProvider, OrderExecutor, PositionManager):
             order_type=OrderType.MARKET, price=None,
             stop_loss=None, take_profit=None, comment="close"
         ))
-    
+
     async def get_account_equity(self):
         return mt5.account_info().equity
-    
+
     async def get_margin_level(self):
         info = mt5.account_info()
         return info.margin_level if info.margin_level else 0.0
-    
+
     async def get_symbols(self):
         symbols = mt5.symbols_get()
         return [s.name for s in symbols if s.visible]
-    
+
     async def subscribe_ticks(self, symbol, callback):
         # MT5 does not have native streaming — poll at 10ms intervals
         import asyncio
@@ -347,7 +347,7 @@ class SimAdapter(MarketDataProvider, OrderExecutor, PositionManager):
         self.slippage_bps = slippage_bps
         self.positions = {}
         self.equity = 100_000.0
-    
+
     # ... implements all abstract methods using ArcticDB data
     # Used for: backtesting, CI testing, strategy development on Linux/Mac
 ```
@@ -361,43 +361,43 @@ class SimAdapter(MarketDataProvider, OrderExecutor, PositionManager):
 class SpreadModel:
     """
     Track and model variable broker spreads.
-    
+
     Retail Forex spreads are NOT fixed — they widen during:
     - News events (NFP, FOMC, ECB)
     - Low liquidity (Asian session for EUR pairs)
     - Market stress (risk-off events)
-    
+
     This model tracks empirical spread distribution and adjusts signal
     evaluation and CVaR computation accordingly.
     """
     history: list[float]
     lookback: int = 5000
-    
+
     def update(self, bid: float, ask: float):
         self.history.append(ask - bid)
         if len(self.history) > self.lookback:
             self.history.pop(0)
-    
+
     @property
     def median(self) -> float:
         return float(np.median(self.history)) if self.history else 0.0
-    
+
     @property
     def p95(self) -> float:
         """95th percentile — worst-case cost for risk calculations."""
         return float(np.percentile(self.history, 95)) if self.history else 0.0
-    
+
     @property
     def volatility(self) -> float:
         """Spread variability — high = unreliable execution environment."""
         return float(np.std(self.history)) if self.history else 0.0
-    
+
     def cost_adjusted_signal(self, raw_signal: float,
                               expected_holding_bars: int,
                               avg_bar_range: float) -> float:
         """
         Attenuate signal by expected spread cost.
-        
+
         A signal must overcome round-trip spread to be profitable.
         If cost exceeds 50% of expected profit, suppress the signal.
         """
@@ -417,7 +417,7 @@ class SpreadModel:
 def get_swap_rates(symbol: str) -> dict:
     """
     Extract overnight swap rates from MT5 for carry signal.
-    
+
     In Stage A (Forex), the carry signal comes from broker swap rates.
     In Stage B (Futures), it comes from futures term structure.
     The alpha engine receives a normalized carry_signal float either way.
@@ -425,10 +425,10 @@ def get_swap_rates(symbol: str) -> dict:
     info = mt5.symbol_info(symbol)
     tick = mt5.symbol_info_tick(symbol)
     mid = (tick.bid + tick.ask) / 2
-    
+
     swap_long_annual = (info.swap_long * info.point * 365) / mid * 100
     swap_short_annual = (info.swap_short * info.point * 365) / mid * 100
-    
+
     return {
         'symbol': symbol,
         'swap_long_annual_pct': swap_long_annual,
@@ -447,26 +447,26 @@ def kelly_to_lots(equity: float, kelly_fraction: float,
                   account_currency: str = "USD") -> float:
     """
     Convert Kelly Criterion fraction to MT5 lot size.
-    
+
     risk_amount = equity × kelly_fraction
     lot_size = risk_amount / (stop_loss_pips × pip_value_per_lot)
-    
+
     Then round to broker's volume_step and clamp to min/max.
     """
     info = mt5.symbol_info(symbol)
     pip_size = info.point * 10  # 5-digit broker: 1 pip = 10 points
     pip_value = info.trade_contract_size * pip_size
-    
+
     # Currency conversion if profit currency ≠ account currency
     if info.currency_profit != account_currency:
         conv = f"{info.currency_profit}{account_currency}"
         conv_tick = mt5.symbol_info_tick(conv)
         if conv_tick:
             pip_value *= conv_tick.bid
-    
+
     risk_amount = equity * kelly_fraction
     lots = risk_amount / (stop_loss_pips * pip_value)
-    
+
     # Round to broker constraints
     step = info.volume_step
     lots = max(info.volume_min, min(info.volume_max,
@@ -483,10 +483,10 @@ MT5 Python API is Windows-only (COM interop). The bridge pattern:
 MT5 Terminal + Python script              Alpha engines + ArcticDB + Dashboard
   │                                         │
   ├── ZMQ PUB (tcp://*:5556) ──ticks──►    ZMQ SUB
-  ├── ZMQ PUB (tcp://*:5557) ──bars───►    ZMQ SUB  
+  ├── ZMQ PUB (tcp://*:5557) ──bars───►    ZMQ SUB
   ├── ZMQ PULL (tcp://*:5558) ◄─orders──   ZMQ PUSH
   └── ZMQ PUSH (tcp://*:5559) ──fills──►   ZMQ PULL
-  
+
   Connected via WireGuard VPN tunnel
   MessagePack serialization for efficiency
 ```

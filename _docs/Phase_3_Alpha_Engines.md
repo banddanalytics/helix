@@ -155,10 +155,10 @@ from statsmodels.tsa.vector_ar.vecm import coint_johansen
 def test_cointegration(y1: np.ndarray, y2: np.ndarray) -> dict:
     data = np.column_stack([y1, y2])
     result = coint_johansen(data, det_order=0, k_ar_diff=1)
-    
+
     trace_stat = result.trace_stat[0]
     crit_95 = result.trace_stat_crit_vals[0, 1]
-    
+
     return {
         'cointegrated': trace_stat > crit_95,
         'trace_stat': trace_stat,

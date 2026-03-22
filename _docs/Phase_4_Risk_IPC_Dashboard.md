@@ -121,7 +121,7 @@ def optimize_portfolio_cvar(
     w = cp.Variable(N)
     zeta = cp.Variable()
     u = cp.Variable(T)
-    
+
     losses = -returns @ w
     constraints = [
         u >= 0,
@@ -131,15 +131,15 @@ def optimize_portfolio_cvar(
         w <= max_weight,
         zeta + (1 / (T * (1 - alpha))) * cp.sum(u) <= cvar_budget
     ]
-    
+
     objective = cp.Minimize(zeta + (1 / (T * (1 - alpha))) * cp.sum(u))
     problem = cp.Problem(objective, constraints)
     problem.solve(solver=cp.ECOS)
-    
+
     if problem.status != 'optimal':
         # Fallback to SCS solver
         problem.solve(solver=cp.SCS)
-    
+
     return w.value
 ```
 
@@ -183,7 +183,7 @@ def compute_kelly_fraction(returns: np.ndarray, regime: str,
     var = np.var(returns)
     if var == 0 or mu <= 0:
         return 0.0
-    
+
     full_kelly = mu / var
     multiplier = {'trending': 0.5, 'mean_reverting': 0.4, 'crisis': 0.1}
     adjusted = full_kelly * multiplier.get(regime, 0.3)

@@ -30,7 +30,7 @@ def compute_momentum_features(close: np.ndarray, high: np.ndarray,
     n = len(close)
     features = np.empty((n, 8))
     features[:] = np.nan
-    
+
     for i in range(253, n):
         features[i, 0] = close[i-1] / close[i-2] - 1        # 1-bar return
         features[i, 1] = close[i-1] / close[i-6] - 1        # 5-bar return
@@ -38,17 +38,17 @@ def compute_momentum_features(close: np.ndarray, high: np.ndarray,
         features[i, 3] = close[i-1] / close[i-22] - 1       # 1-month return
         features[i, 4] = close[i-1] / close[i-64] - 1       # 3-month return
         features[i, 5] = close[i-1] / close[i-253] - 1      # 12-month return
-        
+
         # Momentum acceleration
         mom5 = close[i-1] / close[i-6] - 1
         mom5_prev = close[i-6] / close[i-11] - 1
         features[i, 6] = mom5 - mom5_prev
-        
+
         # Range expansion (trend strength)
         recent_range = np.max(high[i-11:i]) - np.min(low[i-11:i])
         older_range = np.max(high[i-22:i-11]) - np.min(low[i-22:i-11])
         features[i, 7] = recent_range / max(older_range, 1e-10)
-    
+
     return features
 ```
 
@@ -65,27 +65,27 @@ def compute_volatility_features(close: np.ndarray, high: np.ndarray,
     log_ret[0] = 0.0
     for i in range(1, n):
         log_ret[i] = np.log(close[i] / close[i-1])
-    
+
     for i in range(64, n):
         features[i, 0] = np.std(log_ret[i-5:i])      # 5-bar vol
         features[i, 1] = np.std(log_ret[i-22:i])     # 22-bar vol
         features[i, 2] = np.std(log_ret[i-63:i])     # 63-bar vol
         features[i, 3] = features[i, 0] / max(features[i, 2], 1e-10)  # Vol ratio
-        
+
         # Parkinson volatility (high-low based, more efficient)
         hl_sum = 0.0
         for j in range(i-22, i):
             hl = np.log(high[j] / max(low[j], 1e-10))
             hl_sum += hl * hl
         features[i, 4] = np.sqrt(hl_sum / (22 * 4 * np.log(2.0)))
-        
+
         # Volatility of volatility
         vol_5_series = np.empty(10)
         for k in range(10):
             idx = i - k
             vol_5_series[k] = np.std(log_ret[idx-5:idx])
         features[i, 5] = np.std(vol_5_series)
-    
+
     return features
 ```
 
@@ -99,7 +99,7 @@ def compute_session_features(hours: np.ndarray, close: np.ndarray,
     n = len(close)
     features = np.empty((n, 5))
     features[:] = np.nan
-    
+
     for i in range(1, n):
         h = hours[i-1]
         # Session ID: 0=Asian(00-08), 1=London(08-13), 2=Overlap(13-16), 3=NY(16-21)
@@ -113,19 +113,19 @@ def compute_session_features(hours: np.ndarray, close: np.ndarray,
             features[i, 0] = 3
         else:
             features[i, 0] = 0
-        
+
         # Bar position within its range
         bar_range = high[i-1] - low[i-1]
         features[i, 1] = (close[i-1] - low[i-1]) / max(bar_range, 1e-10)
-        
+
         # Relative bar size (current range vs 20-bar avg range)
         if i >= 21:
             avg_range = np.mean(high[i-21:i-1] - low[i-21:i-1])
             features[i, 2] = bar_range / max(avg_range, 1e-10)
-        
+
         features[i, 3] = day_of_week[i-1]  # 0=Mon, 4=Fri
         features[i, 4] = 0.0  # Placeholder for distance from daily open
-    
+
     return features
 ```
 
@@ -140,26 +140,26 @@ def compute_cross_asset_features(price_dict: dict[str, np.ndarray]) -> np.ndarra
     df = pd.DataFrame(price_dict)
     returns = df.pct_change()
     features = pd.DataFrame(index=df.index)
-    
+
     # USD strength: average return of USD-quoted pairs (inverted)
     usd_pairs = [c for c in df.columns if c.endswith('USD') and c != 'USDJPY']
     if usd_pairs:
         features['usd_strength'] = -returns[usd_pairs].mean(axis=1).rolling(5).mean().shift(1)
-    
+
     # Risk appetite: AUD + JPY divergence
     if 'AUDUSD' in returns and 'USDJPY' in returns:
         features['risk_appetite'] = (returns['AUDUSD'].rolling(10).mean() +
                                      returns['USDJPY'].rolling(10).mean()).shift(1)
-    
+
     # Correlation regime: rolling corr between EUR and GBP
     if 'EURUSD' in returns and 'GBPUSD' in returns:
         features['eur_gbp_corr'] = returns['EURUSD'].rolling(20).corr(
             returns['GBPUSD']).shift(1)
-    
+
     # Momentum dispersion: std of momentum across pairs
     mom_20 = returns.rolling(20).mean()
     features['mom_dispersion'] = mom_20.std(axis=1).shift(1)
-    
+
     return features.values
 ```
 
@@ -176,22 +176,22 @@ def compute_tick_volume_features(tick_vol: np.ndarray,
     n = len(tick_vol)
     features = np.empty((n, 4))
     features[:] = np.nan
-    
+
     for i in range(22, n):
         avg_vol = np.mean(tick_vol[i-21:i])
         features[i, 0] = tick_vol[i-1] / max(avg_vol, 1.0)  # Relative volume
-        
+
         recent = np.mean(tick_vol[i-6:i])
         older = np.mean(tick_vol[i-11:i-5])
         features[i, 1] = recent / max(older, 1.0)  # Volume trend
-        
+
         # Price-volume divergence
         pc = close[i-1] - close[i-6]
         vc = tick_vol[i-1] - np.mean(tick_vol[i-6:i-1])
         features[i, 2] = np.sign(pc) * np.sign(vc)
-        
+
         features[i, 3] = 1.0 if tick_vol[i-1] > 2 * avg_vol else 0.0  # Spike
-    
+
     return features
 ```
 

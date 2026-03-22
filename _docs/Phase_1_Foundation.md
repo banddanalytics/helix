@@ -631,7 +631,7 @@ def compute_annualized_carry(symbol: str) -> dict:
     """
     Converts MT5 swap points to annualized percentage.
     Formula: annual_swap = (swap_points × point × 365) / mid_price × 100
-    
+
     Returns normalized carry_signal float consumed identically by alpha engine
     regardless of source (swaps in Stage A, term structure in Stage B).
     """
@@ -645,11 +645,11 @@ def kelly_to_lots(equity: float, kelly_fraction: float,
                   account_currency: str = "USD") -> float:
     """
     Converts Kelly Criterion fraction to MT5 lot size.
-    
+
     risk_amount = equity × kelly_fraction
     pip_value = contract_size × pip_size
     lots = risk_amount / (stop_loss_pips × pip_value)
-    
+
     Handles: currency conversion when profit_currency ≠ account_currency,
     rounding to volume_step, clamping to volume_min/volume_max.
     """

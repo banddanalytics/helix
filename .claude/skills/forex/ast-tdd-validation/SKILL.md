@@ -43,23 +43,23 @@ class ASTExtractor(ast.NodeVisitor):
         self.imports = []
         self.function_calls = []
         self.attribute_accesses = []
-    
+
     def visit_Import(self, node):
         for alias in node.names:
             self.imports.append(alias.name)
         self.generic_visit(node)
-    
+
     def visit_ImportFrom(self, node):
         for alias in node.names:
             self.imports.append(f"{node.module}.{alias.name}")
         self.generic_visit(node)
-    
+
     def visit_Call(self, node):
         info = self._extract_call(node)
         if info:
             self.function_calls.append(info)
         self.generic_visit(node)
-    
+
     def _extract_call(self, node):
         if isinstance(node.func, ast.Attribute):
             return {
@@ -108,20 +108,20 @@ MT5_STUBS = {
 class KCHValidator:
     def __init__(self, stubs):
         self.stubs = stubs
-    
+
     def validate(self, source_code: str) -> list[dict]:
         tree = ast.parse(source_code)
         extractor = ASTExtractor()
         extractor.visit(tree)
         violations = []
-        
+
         for call in extractor.function_calls:
             result = self._check_call(call)
             if result:
                 violations.append(result)
-        
+
         return violations
-    
+
     def _check_call(self, call):
         func = call['func']
         for cls, methods in self.stubs.items():
@@ -249,14 +249,14 @@ jobs:
       - run: ruff check . && ruff format --check .
       - run: mypy src/ --strict
       - run: python -m ast_validator --stubs stubs/ --source src/
-  
+
   tests:
     needs: static
     services:
       nats: {image: "nats:latest", ports: ["4222:4222"]}
     steps:
       - run: pytest --cov=src --cov-fail-under=80 --cov-branch -v
-  
+
   e2e:
     needs: tests
     if: github.ref == 'refs/heads/main'

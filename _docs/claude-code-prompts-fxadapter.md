@@ -24,7 +24,7 @@ Output: ./src/execution/
   spread_model.py    (Variable spread tracking)
   lot_sizing.py      (Kelly → lot conversion)
   swap_rates.py      (Carry signal from broker swaps)
-  
+
 Tests: mock MT5 API calls using unittest.mock for cross-platform testing
 ```
 

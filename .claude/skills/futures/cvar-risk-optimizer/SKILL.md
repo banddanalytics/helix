@@ -58,9 +58,9 @@ def compute_cvar_historical(returns: np.ndarray, alpha: float = 0.95) -> float:
 def compute_cvar_parametric(mu: float, sigma: float, alpha: float = 0.95) -> float:
     """
     Gaussian parametric CVaR. Use sigma from GARCH conditional variance.
-    
+
     CVaR_α = μ + σ · φ(Φ⁻¹(α)) / (1-α)
-    
+
     where φ = standard normal PDF, Φ⁻¹ = standard normal quantile function
     """
     from scipy.stats import norm
@@ -80,11 +80,11 @@ def compute_cvar_cornish_fisher(returns: np.ndarray, alpha: float = 0.95) -> flo
     sigma = np.std(returns)
     skew = scipy.stats.skew(returns)
     kurt = scipy.stats.kurtosis(returns)  # excess kurtosis
-    
+
     z = norm.ppf(alpha)
-    z_cf = (z + (z**2 - 1)*skew/6 + (z**3 - 3*z)*(kurt)/24 
+    z_cf = (z + (z**2 - 1)*skew/6 + (z**3 - 3*z)*(kurt)/24
             - (2*z**3 - 5*z)*(skew**2)/36)
-    
+
     var_cf = -(mu + z_cf * sigma)
     # CVaR approximation: integrate the Cornish-Fisher adjusted tail
     tail_returns = returns[returns <= -(mu + z_cf * sigma)]
@@ -122,16 +122,16 @@ def optimize_portfolio_cvar(
     Reformulated as a linear program per Rockafellar-Uryasev (2000).
     """
     T, N = returns.shape
-    
+
     # Decision variables
     w = cp.Variable(N)          # portfolio weights
     zeta = cp.Variable()        # VaR threshold
     u = cp.Variable(T)          # auxiliary variables for CVaR linearization
-    
+
     # CVaR as linear program
     # CVaR_α = zeta + (1/(T(1-α))) Σ_t max(-w'r_t - zeta, 0)
     portfolio_losses = -returns @ w  # (T,) vector of portfolio losses
-    
+
     constraints = [
         u >= 0,
         u >= portfolio_losses - zeta,
@@ -141,13 +141,13 @@ def optimize_portfolio_cvar(
         returns.mean(axis=0) @ w >= target_return,
         zeta + (1 / (T * (1 - alpha))) * cp.sum(u) <= cvar_budget  # CVaR constraint
     ]
-    
+
     # Objective: minimize CVaR
     objective = cp.Minimize(zeta + (1 / (T * (1 - alpha))) * cp.sum(u))
-    
+
     problem = cp.Problem(objective, constraints)
     problem.solve(solver=cp.ECOS)
-    
+
     return w.value
 ```
 
@@ -190,21 +190,21 @@ def compute_kelly_fraction(
     """
     mu = np.mean(returns)
     var = np.var(returns)
-    
+
     if var == 0 or mu <= 0:
         return 0.0
-    
+
     full_kelly = mu / var
-    
+
     # Regime adjustment
     regime_multiplier = {
         'trending': 0.5,        # Half-Kelly in trending (moderate confidence)
         'mean_reverting': 0.4,  # 40% Kelly in mean-reverting
         'crisis': 0.1           # 10% Kelly in crisis (extreme caution)
     }
-    
+
     adjusted = full_kelly * regime_multiplier.get(regime, 0.3)
-    
+
     # Hard cap
     return min(adjusted, max_fraction)
 ```
@@ -241,26 +241,26 @@ Recovery trigger:
 
 ```python
 class EquityCurveTrader:
-    def __init__(self, ma_window: int = 50, deriv_window: int = 20, 
+    def __init__(self, ma_window: int = 50, deriv_window: int = 20,
                  recovery_bars: int = 10):
         self.ma_window = ma_window
         self.deriv_window = deriv_window
         self.recovery_bars = recovery_bars
         self.sandboxed = {}  # {strategy_name: sandbox_state}
-    
+
     def evaluate(self, strategy_name: str, equity_curve: np.ndarray) -> dict:
         """Evaluate whether a strategy should be sandboxed or restored."""
         ma = pd.Series(equity_curve).rolling(self.ma_window).mean().values
         deriv = np.diff(equity_curve, prepend=equity_curve[0])
         deriv_ma = pd.Series(deriv).rolling(self.deriv_window).mean().values
-        
+
         current_equity = equity_curve[-1]
         current_ma = ma[-1]
         current_deriv = deriv[-1]
         current_deriv_ma = deriv_ma[-1]
-        
+
         is_sandboxed = strategy_name in self.sandboxed
-        
+
         if not is_sandboxed:
             # Check sandbox trigger
             if current_equity < current_ma and current_deriv < current_deriv_ma:
@@ -280,7 +280,7 @@ class EquityCurveTrader:
                     return {'action': 'RESTORE', 'scale': 0.5}  # 50% initial allocation
             else:
                 state['recovery_count'] = 0
-        
+
         return {'action': 'HOLD', 'status': 'sandboxed' if is_sandboxed else 'active'}
 ```
 
@@ -289,7 +289,7 @@ class EquityCurveTrader:
 ```
 Total portfolio CVaR:
   CVaR_portfolio ≤ Σᵢ wᵢ · CVaR_i  (sub-additive, but not tight)
-  
+
 Better: compute CVaR on the aggregate portfolio return directly:
   R_portfolio(t) = Σᵢ wᵢ · Rᵢ(t)
   CVaR_portfolio = compute_cvar_historical(R_portfolio, α=0.95)
@@ -306,7 +306,7 @@ Risk budget allocation:
 ```
 Level 1 (WARNING):  Daily drawdown > 2% → Reduce all positions to 50% Kelly
 Level 2 (HALT):     Daily drawdown > 5% → Flatten all positions, pause for 1 hour
-Level 3 (SHUTDOWN): Daily drawdown > 10% → Flatten all, disable all strategies, 
+Level 3 (SHUTDOWN): Daily drawdown > 10% → Flatten all, disable all strategies,
                     require manual restart with 2FA confirmation from Nairobi dashboard
 ```
 

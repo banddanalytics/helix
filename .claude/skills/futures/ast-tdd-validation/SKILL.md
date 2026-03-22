@@ -55,23 +55,23 @@ class ASTExtractor(ast.NodeVisitor):
         self.imports: List[str] = []              # import statements
         self.function_calls: List[dict] = []      # {module, func, args, kwargs, lineno}
         self.attribute_accesses: List[dict] = []  # {object, attr, lineno}
-    
+
     def visit_Import(self, node):
         for alias in node.names:
             self.imports.append(alias.name)
         self.generic_visit(node)
-    
+
     def visit_ImportFrom(self, node):
         for alias in node.names:
             self.imports.append(f"{node.module}.{alias.name}")
         self.generic_visit(node)
-    
+
     def visit_Call(self, node):
         call_info = self._extract_call_info(node)
         if call_info:
             self.function_calls.append(call_info)
         self.generic_visit(node)
-    
+
     def visit_Attribute(self, node):
         self.attribute_accesses.append({
             'object': ast.dump(node.value),
@@ -79,7 +79,7 @@ class ASTExtractor(ast.NodeVisitor):
             'lineno': node.lineno
         })
         self.generic_visit(node)
-    
+
     def _extract_call_info(self, node) -> dict:
         """Extract function name, arguments, and keyword arguments from a Call node."""
         if isinstance(node.func, ast.Attribute):
@@ -158,15 +158,15 @@ class KCHValidator:
     """
     def __init__(self, stubs: Dict[str, dict]):
         self.stubs = stubs
-    
+
     def validate(self, source_code: str) -> List[dict]:
         """Parse source code and check all API calls against stubs."""
         tree = ast.parse(source_code)
         extractor = ASTExtractor()
         extractor.visit(tree)
-        
+
         violations = []
-        
+
         # Check imports
         for imp in extractor.imports:
             if not self._validate_import(imp):
@@ -176,24 +176,24 @@ class KCHValidator:
                     'detail': f"Import '{imp}' not found in library stubs",
                     'suggestion': self._suggest_import(imp)
                 })
-        
+
         # Check function calls
         for call in extractor.function_calls:
             result = self._validate_call(call)
             if result:
                 violations.append(result)
-        
+
         return violations
-    
+
     def _validate_call(self, call: dict) -> dict | None:
         """Check if a function call matches the stub definition."""
         func_name = call['func']
-        
+
         # Search for this function across all stub classes
         for class_name, methods in self.stubs.items():
             if func_name in methods:
                 stub = methods[func_name]
-                
+
                 # Check parameter names
                 for kwarg in call['kwargs']:
                     if kwarg not in stub['params']:
@@ -205,9 +205,9 @@ class KCHValidator:
                             'valid_params': stub['params'],
                             'suggestion': self._suggest_param(kwarg, stub['params'])
                         }
-                
+
                 return None  # Valid call
-        
+
         # Function not found in any stub — potential phantom
         return {
             'type': 'PHANTOM_FUNCTION',
@@ -216,7 +216,7 @@ class KCHValidator:
             'detail': f"Function '{func_name}' not found in library stubs",
             'suggestion': 'Verify this function exists in the target library version'
         }
-    
+
     def _suggest_param(self, wrong_param: str, valid_params: list) -> str:
         """Suggest the closest valid parameter name (Levenshtein distance)."""
         from difflib import get_close_matches
@@ -239,25 +239,25 @@ def generate_stubs(module_name: str, classes: List[str]) -> dict:
     """
     module = importlib.import_module(module_name)
     stubs = {}
-    
+
     for class_name in classes:
         cls = getattr(module, class_name)
         methods = {}
-        
+
         for name, method in inspect.getmembers(cls, predicate=inspect.isfunction):
             if name.startswith('_') and name != '__init__':
                 continue
             sig = inspect.signature(method)
             params = [p.name for p in sig.parameters.values() if p.name != 'self']
             return_annotation = sig.return_annotation
-            
+
             methods[name] = {
                 'params': params,
                 'return': str(return_annotation) if return_annotation != inspect.Parameter.empty else 'Unknown'
             }
-        
+
         stubs[class_name] = methods
-    
+
     return stubs
 
 # Usage: generate stubs from installed arcticdb

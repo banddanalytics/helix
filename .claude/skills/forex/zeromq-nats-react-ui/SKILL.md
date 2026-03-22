@@ -27,7 +27,7 @@ MT5 Terminal                            Alpha Engines
   ├── ZMQ PUB tcp://*:5557 ─bars───►     ZMQ SUB
   ├── ZMQ PULL tcp://*:5558 ◄─orders──   ZMQ PUSH
   └── ZMQ PUSH tcp://*:5559 ─fills──►    ZMQ PULL
-  
+
   Over WireGuard VPN (10.200.0.x)
   MessagePack serialization
 ```
@@ -138,7 +138,7 @@ async def bridge(websocket, path):
     nc = await nats.connect("nats://localhost:4222")
     js = nc.jetstream()
     sub = await js.pull_subscribe("telemetry.>", "nairobi-dashboard")
-    
+
     while True:
         try:
             msgs = await sub.fetch(batch=10, timeout=1)

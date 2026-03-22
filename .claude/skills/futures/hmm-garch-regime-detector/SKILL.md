@@ -181,7 +181,7 @@ class HMMGARCHRegimeDetector:
             'enter': [0.70, 0.65, 0.60],
             'exit': 0.30
         }
-    
+
     def fit(self, returns: np.ndarray):
         """
         Two-stage fitting:
@@ -192,7 +192,7 @@ class HMMGARCHRegimeDetector:
         base_hmm = hmm.GaussianHMM(n_components=self.n_states, covariance_type='diag')
         base_hmm.fit(returns.reshape(-1, 1))
         initial_states = base_hmm.predict(returns.reshape(-1, 1))
-        
+
         # Stage 2: Fit GARCH per state
         for state in range(self.n_states):
             state_returns = returns[initial_states == state]
@@ -206,54 +206,54 @@ class HMMGARCHRegimeDetector:
                 'beta': res.params['beta[1]'],
                 'mu': res.params['mu']
             }
-        
+
         # Stage 3: Custom Baum-Welch with GARCH emissions
         self.transition_matrix = base_hmm.transmat_
         self.initial_probs = base_hmm.startprob_
         self._baum_welch_garch(returns)
-    
+
     def _garch_emission_prob(self, returns: np.ndarray, state: int) -> np.ndarray:
         """Compute GARCH(1,1) emission probabilities for a given state."""
         p = self.garch_params[state]
         T = len(returns)
         sigma2 = np.empty(T)
         sigma2[0] = p['omega'] / (1 - p['alpha'] - p['beta'])  # unconditional var
-        
+
         for t in range(1, T):
             eps = returns[t-1] - p['mu']
             sigma2[t] = p['omega'] + p['alpha'] * eps**2 + p['beta'] * sigma2[t-1]
-        
+
         # Gaussian PDF with time-varying variance
         probs = (1.0 / np.sqrt(2 * np.pi * sigma2)) * \
                 np.exp(-0.5 * (returns - p['mu'])**2 / sigma2)
         return probs
-    
+
     def predict_online(self, returns_history: np.ndarray) -> dict:
         """
         Online regime prediction using forward algorithm only.
         PiT compliant: uses data up to T to produce state probs at T.
         """
         T = len(returns_history)
-        
+
         # Compute emission probs for all states
         emissions = np.zeros((T, self.n_states))
         for j in range(self.n_states):
             emissions[:, j] = self._garch_emission_prob(returns_history, j)
-        
+
         # Forward pass only (no backward — online/real-time)
         alpha = np.zeros((T, self.n_states))
         alpha[0] = self.initial_probs * emissions[0]
         alpha[0] /= alpha[0].sum()
-        
+
         for t in range(1, T):
             for j in range(self.n_states):
                 alpha[t, j] = np.sum(alpha[t-1] * self.transition_matrix[:, j]) * emissions[t, j]
             alpha[t] /= alpha[t].sum()  # normalize to prevent underflow
-        
+
         # Current state probabilities
         state_probs = alpha[-1]
         current_regime = np.argmax(state_probs)
-        
+
         return {
             'state_probs': state_probs,
             'current_regime': current_regime,

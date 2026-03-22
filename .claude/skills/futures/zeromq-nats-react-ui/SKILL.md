@@ -61,18 +61,18 @@ class OrderRouter:
     """
     def __init__(self):
         self.ctx = zmq.Context()
-        
+
         # Order intake: PULL from signal engines
         self.order_pull = self.ctx.socket(zmq.PULL)
         self.order_pull.bind("ipc:///tmp/orders.sock")
         self.order_pull.setsockopt(zmq.RCVHWM, 10000)  # High water mark
         self.order_pull.setsockopt(zmq.RCVTIMEO, 0)     # Non-blocking
-        
+
         # Market data fan-out: SUB from FIX parser
         self.mdata_sub = self.ctx.socket(zmq.SUB)
         self.mdata_sub.connect("ipc:///tmp/mdata.sock")
         self.mdata_sub.setsockopt_string(zmq.SUBSCRIBE, "")  # All messages
-        
+
         # Order confirmation: PUB back to signal engines
         self.confirm_pub = self.ctx.socket(zmq.PUB)
         self.confirm_pub.bind("ipc:///tmp/confirms.sock")
@@ -88,7 +88,7 @@ class MarketDataPublisher:
         self.pub.bind("ipc:///tmp/mdata.sock")
         self.pub.setsockopt(zmq.SNDHWM, 100000)  # Large buffer for bursts
         self.pub.setsockopt(zmq.LINGER, 0)        # Don't block on close
-    
+
     def publish_tick(self, symbol: bytes, data: bytes):
         """Publish with topic prefix for selective subscription."""
         self.pub.send_multipart([symbol, data])
@@ -104,7 +104,7 @@ import struct
 # Order message: 37 bytes fixed-size
 ORDER_FMT = '!BQdiBQ'  # side(1), symbol_id(8), price(8), qty(4), side(1), order_type(1), timestamp(8)
 
-def pack_order(side: int, symbol_id: int, price: float, qty: int, 
+def pack_order(side: int, symbol_id: int, price: float, qty: int,
                order_type: int, timestamp: int) -> bytes:
     return struct.pack(ORDER_FMT, side, symbol_id, price, qty, side, order_type, timestamp)
 
@@ -172,7 +172,7 @@ from nats.js.api import StreamConfig, ConsumerConfig
 
 async def setup_nats_telemetry(nc):
     js = nc.jetstream()
-    
+
     # Create stream
     await js.add_stream(StreamConfig(
         name="TELEMETRY",
@@ -181,7 +181,7 @@ async def setup_nats_telemetry(nc):
         max_age=86400_000_000_000,  # 24h in nanoseconds
         max_bytes=10 * 1024**3,     # 10GB
     ))
-    
+
     # Create durable consumer for Nairobi
     await js.add_consumer("TELEMETRY", ConsumerConfig(
         durable_name="NAIROBI_DASHBOARD",
@@ -273,10 +273,10 @@ import nats
 async def bridge(websocket, path):
     nc = await nats.connect("nats://ld4-gateway:4222")
     js = nc.jetstream()
-    
+
     # Subscribe to all telemetry
     sub = await js.pull_subscribe("telemetry.>", "NAIROBI_DASHBOARD")
-    
+
     while True:
         try:
             msgs = await sub.fetch(batch=10, timeout=1)

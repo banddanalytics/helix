@@ -121,14 +121,14 @@ class HMMGARCHRegimeDetector:
     Input: 1D numpy array of log returns
     Output: regime labels and state probabilities
     """
-    
+
     def __init__(self, n_states=3, min_dwell=20):
         self.n_states = n_states
         self.min_dwell = min_dwell
         self.garch_params = {}
         self.transition_matrix = None
         self.initial_probs = None
-    
+
     def fit(self, returns: np.ndarray):
         """Two-stage fitting: Gaussian HMM → per-state GARCH → custom Baum-Welch."""
         # Stage 1: Initial Gaussian HMM
@@ -136,7 +136,7 @@ class HMMGARCHRegimeDetector:
                                 n_iter=100, tol=0.01)
         base.fit(returns.reshape(-1, 1))
         states = base.predict(returns.reshape(-1, 1))
-        
+
         # Stage 2: Fit GARCH per state
         for s in range(self.n_states):
             state_returns = returns[states == s]
@@ -150,27 +150,27 @@ class HMMGARCHRegimeDetector:
                 'beta': res.params['beta[1]'],
                 'mu': res.params['mu']
             }
-        
+
         self.transition_matrix = base.transmat_
         self.initial_probs = base.startprob_
-    
+
     def predict_online(self, returns: np.ndarray) -> dict:
         """Forward-only regime prediction. PiT compliant."""
         T = len(returns)
         emissions = np.zeros((T, self.n_states))
         for j in range(self.n_states):
             emissions[:, j] = self._garch_emission(returns, j)
-        
+
         alpha = np.zeros((T, self.n_states))
         alpha[0] = self.initial_probs * emissions[0]
         alpha[0] /= alpha[0].sum()
-        
+
         for t in range(1, T):
             for j in range(self.n_states):
                 alpha[t, j] = np.sum(alpha[t-1] * self.transition_matrix[:, j]) \
                               * emissions[t, j]
             alpha[t] /= alpha[t].sum()
-        
+
         state_probs = alpha[-1]
         regime = np.argmax(state_probs)
         return {
@@ -179,7 +179,7 @@ class HMMGARCHRegimeDetector:
             'label': ['trending', 'mean_reverting', 'crisis'][regime],
             'confidence': state_probs[regime]
         }
-    
+
     def _garch_emission(self, returns, state):
         p = self.garch_params[state]
         T = len(returns)

@@ -47,10 +47,10 @@ def test_cointegration(y1: np.ndarray, y2: np.ndarray) -> dict:
     """
     data = np.column_stack([y1, y2])
     result = coint_johansen(data, det_order=0, k_ar_diff=1)
-    
+
     trace_stat = result.trace_stat[0]
     crit_95 = result.trace_stat_crit_vals[0, 1]
-    
+
     return {
         'cointegrated': trace_stat > crit_95,
         'trace_stat': trace_stat,
@@ -70,13 +70,13 @@ def compute_dynamic_hedge_ratio(y1, y2, window=504, step=21):
     """
     T = len(y1)
     hedge_ratios = np.full(T, np.nan)
-    
+
     for t in range(window, T):
         data = np.column_stack([y1[t-window:t], y2[t-window:t]])
         result = coint_johansen(data, det_order=0, k_ar_diff=1)
         if result.trace_stat[0] > result.trace_stat_crit_vals[0, 1]:
             hedge_ratios[t] = -result.evec[1, 0] / result.evec[0, 0]
-    
+
     return hedge_ratios
 ```
 
@@ -121,15 +121,15 @@ If trace stat < 10% critical value → suspend pair
 def compute_forex_carry(symbols: list[str]) -> pd.DataFrame:
     """
     Carry signal from MT5 swap rates.
-    
+
     Carry = annualized swap rate for holding a position overnight.
     Positive carry = you earn interest; Negative = you pay.
-    
+
     The carry_signal is a normalized float that the alpha engine
     consumes identically regardless of source.
     """
     from src.execution.swap_rates import compute_annualized_carry
-    
+
     carries = []
     for symbol in symbols:
         c = compute_annualized_carry(symbol)
@@ -139,7 +139,7 @@ def compute_forex_carry(symbols: list[str]) -> pd.DataFrame:
             'carry_long': c['annual_carry_long_pct'],
             'carry_short': c['annual_carry_short_pct'],
         })
-    
+
     df = pd.DataFrame(carries)
     # Cross-sectional rank: long top quartile, short bottom quartile
     df['rank'] = df['carry_signal'].rank(pct=True)
@@ -155,15 +155,15 @@ def compute_futures_carry(front_price, back_price,
                            front_expiry_days, back_expiry_days):
     """
     Carry from futures term structure (roll yield).
-    
+
     Annualized carry = (F1/F2 - 1) × 365/(D2 - D1)
-    
+
     Contango (F1 < F2): negative carry (short signal)
     Backwardation (F1 > F2): positive carry (long signal)
     """
     if back_expiry_days <= front_expiry_days:
         return 0.0
-    
+
     raw_carry = (front_price / back_price - 1)
     annualized = raw_carry * 365.0 / (back_expiry_days - front_expiry_days)
     return annualized  # Same normalized float as forex carry

@@ -161,7 +161,7 @@ def read_price_data(library_name: str, symbol: str,
     qb = QueryBuilder()
     qb = qb[qb['timestamp'] >= start]
     qb = qb[qb['timestamp'] <= end]
-    
+
     result = lib.read(symbol, query_builder=qb, columns=columns)
     return result.data
 ```
@@ -202,7 +202,7 @@ def validate_pit_compliance(signal_df: pd.DataFrame,
     """
     forward_ic = signal_df['signal'].corr(price_df['returns'].shift(-1))
     contemp_ic = signal_df['signal'].corr(price_df['returns'])
-    
+
     if abs(contemp_ic) > abs(forward_ic) * 1.5:
         raise LookAheadBiasError(
             f"Contemporaneous IC ({contemp_ic:.4f}) exceeds forward IC "
@@ -243,12 +243,12 @@ def single_pass_backtest(
     equity = np.empty(n)
     position = np.empty(n, dtype=np.int8)
     pnl = np.empty(n)
-    
+
     equity[0] = 100_000.0
     position[0] = 0
     pnl[0] = 0.0
     pos_size = 0.0
-    
+
     for i in range(1, n):
         if signal[i-1] != 0 and position[i-1] == 0:
             pos_size = (equity[i-1] * risk_per_trade) / max(atr[i-1], 1e-10)
@@ -265,9 +265,9 @@ def single_pass_backtest(
             position[i] = position[i-1]
             pnl[i] = position[i] * (close[i] - close[i-1]) * pos_size \
                       if position[i] != 0 else 0.0
-        
+
         equity[i] = equity[i-1] + pnl[i]
-    
+
     return equity, position, pnl
 ```
 

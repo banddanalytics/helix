@@ -148,10 +148,10 @@ def validate_pit_compliance(signal_df: pd.DataFrame, price_df: pd.DataFrame) -> 
     """
     # Forward IC should be significant (signal predicts future)
     forward_ic = signal_df['signal'].corr(price_df['returns'].shift(-1))
-    
+
     # Contemporaneous IC should be near-zero if PiT is correct
     contemp_ic = signal_df['signal'].corr(price_df['returns'])
-    
+
     # If contemporaneous IC >> forward IC, look-ahead bias is present
     if abs(contemp_ic) > abs(forward_ic) * 1.5:
         raise LookAheadBiasError(
@@ -192,18 +192,18 @@ def compute_ema_crossover_signal(close: np.ndarray, fast: int, slow: int) -> np.
     fast_ema = np.empty(n)
     slow_ema = np.empty(n)
     signal = np.empty(n, dtype=np.int8)
-    
+
     fast_alpha = 2.0 / (fast + 1)
     slow_alpha = 2.0 / (slow + 1)
-    
+
     fast_ema[0] = close[0]
     slow_ema[0] = close[0]
     signal[0] = 0
-    
+
     for i in range(1, n):
         fast_ema[i] = fast_alpha * close[i] + (1 - fast_alpha) * fast_ema[i - 1]
         slow_ema[i] = slow_alpha * close[i] + (1 - slow_alpha) * slow_ema[i - 1]
-        
+
         # PiT: compare EMAs computed up to i (using close[i]), assign signal at i
         # In live trading, this signal would be acted upon at i+1
         if fast_ema[i] > slow_ema[i]:
@@ -212,7 +212,7 @@ def compute_ema_crossover_signal(close: np.ndarray, fast: int, slow: int) -> np.
             signal[i] = -1  # Short
         else:
             signal[i] = 0  # Flat
-    
+
     return signal
 ```
 
@@ -254,11 +254,11 @@ def single_pass_backtest(
     equity = np.empty(n)
     position = np.empty(n, dtype=np.int8)
     pnl = np.empty(n)
-    
+
     equity[0] = 100_000.0  # Initial capital
     position[0] = 0
     pnl[0] = 0.0
-    
+
     for i in range(1, n):
         # Position sizing via ATR (uses shift-1 ATR for PiT)
         if signal[i - 1] != 0 and position[i - 1] == 0:  # Entry signal from T-1
@@ -268,12 +268,12 @@ def single_pass_backtest(
             position[i] = 0
         else:
             position[i] = position[i - 1]
-        
+
         # PnL calculation
         price_change = close[i] - close[i - 1]
         pnl[i] = position[i] * price_change * pos_size if position[i] != 0 else 0.0
         equity[i] = equity[i - 1] + pnl[i]
-    
+
     return equity, position, pnl
 ```
 

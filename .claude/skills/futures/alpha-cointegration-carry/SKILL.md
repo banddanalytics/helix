@@ -88,18 +88,18 @@ def compute_dynamic_hedge_ratio(y1: np.ndarray, y2: np.ndarray, window: int) -> 
     """
     T = len(y1)
     hedge_ratios = np.full(T, np.nan)
-    
+
     for t in range(window, T):
         # PiT: use data up to t-1 only
         y_window = np.column_stack([y1[t-window:t], y2[t-window:t]])
-        
+
         result = coint_johansen(y_window, det_order=0, k_ar_diff=1)
-        
+
         if result.trace_stat[0] > result.trace_stat_crit_vals[0, 1]:  # 5% level
             # Cointegration exists — extract hedge ratio from first eigenvector
             beta = result.evec[:, 0]
             hedge_ratios[t] = -beta[1] / beta[0]  # Normalized hedge ratio
-    
+
     return hedge_ratios
 ```
 
@@ -186,7 +186,7 @@ Excess return on bond j: E[rxⱼₜ₊₁] ≈ -Cov(rxⱼₜ₊₁, mₜ₊₁)
 
 Select bonds that maximize:
   max_j { yield_pickup(j) - duration_risk(j) }
-  
+
   yield_pickup(j) = yield(j) - funding_rate
   duration_risk(j) = modified_duration(j) · σ(Δy) · correlation_to_portfolio
 ```

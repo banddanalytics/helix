@@ -68,7 +68,7 @@ def compute_cvar_with_spread(returns: np.ndarray, spread_history: np.ndarray,
                               alpha: float = 0.95) -> tuple:
     """
     CVaR adjusted for variable spread costs.
-    
+
     During crisis periods (regime S₃), spreads widen dramatically.
     This correlates with the worst return periods, making the tail fatter.
     """
@@ -93,14 +93,14 @@ def optimize_portfolio_cvar(returns, alpha=0.95, max_weight=0.25, cvar_budget=0.
     w = cp.Variable(N)
     zeta = cp.Variable()
     u = cp.Variable(T)
-    
+
     losses = -returns @ w
     constraints = [
         u >= 0, u >= losses - zeta,
         cp.sum(w) == 1, w >= 0, w <= max_weight,
         zeta + (1/(T*(1-alpha))) * cp.sum(u) <= cvar_budget
     ]
-    
+
     prob = cp.Problem(cp.Minimize(zeta + (1/(T*(1-alpha))) * cp.sum(u)), constraints)
     prob.solve(solver=cp.ECOS)
     return w.value
@@ -117,7 +117,7 @@ def compute_kelly_fraction(returns: np.ndarray, regime: str,
     var = np.var(returns)
     if var == 0 or mu <= 0:
         return 0.0
-    
+
     full_kelly = mu / var
     multiplier = {'trending': 0.5, 'mean_reverting': 0.4, 'crisis': 0.1}
     adjusted = full_kelly * multiplier.get(regime, 0.3)
@@ -144,15 +144,15 @@ class EquityCurveTrader:
         self.deriv_window = deriv_window
         self.recovery_bars = recovery_bars
         self.sandboxed = {}
-    
+
     def evaluate(self, strategy_name: str, equity_curve: np.ndarray) -> dict:
         ma = pd.Series(equity_curve).rolling(self.ma_window).mean().values
         deriv = np.diff(equity_curve, prepend=equity_curve[0])
         deriv_ma = pd.Series(deriv).rolling(self.deriv_window).mean().values
-        
+
         current_eq = equity_curve[-1]
         is_sandboxed = strategy_name in self.sandboxed
-        
+
         if not is_sandboxed:
             if current_eq < ma[-1] and deriv[-1] < deriv_ma[-1]:
                 self.sandboxed[strategy_name] = {'recovery_count': 0}
@@ -165,7 +165,7 @@ class EquityCurveTrader:
                     return {'action': 'RESTORE', 'scale': 0.5}
             else:
                 self.sandboxed[strategy_name]['recovery_count'] = 0
-        
+
         return {'action': 'HOLD'}
 ```
 
