@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-01-PLAN.md — signal schema contract and 32-stub test scaffold
-last_updated: "2026-03-22T10:15:59.036Z"
+stopped_at: Completed 03-02-PLAN.md — HMM-GARCH regime detector core implementation
+last_updated: "2026-03-22T10:22:36.195Z"
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 21
-  completed_plans: 14
+  completed_plans: 15
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 ## Current Position
 
 Phase: 03 (alpha-engines) — EXECUTING
-Plan: 2 of 8
+Plan: 3 of 8
 
 ## Performance Metrics
 
@@ -59,6 +59,7 @@ Plan: 2 of 8
 | Phase 02-data-engineering P05 | 3 | 2 tasks | 3 files |
 | Phase 02-data-engineering P06 | 200 | 2 tasks | 9 files |
 | Phase 03-alpha-engines P01 | 193 | 2 tasks | 11 files |
+| Phase 03-alpha-engines P02 | 273 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -99,6 +100,8 @@ Recent decisions affecting current work:
 - [Phase 02-data-engineering]: BacktestRunner uses pit_read snapshot parameter for deterministic reproducibility across runs
 - [Phase 03-alpha-engines]: Signal schema uses plain Python int/float types in SignalRow fields for broader compatibility; numpy types annotated but not enforced in dataclass
 - [Phase 03-alpha-engines]: Test stubs use pytest.mark.skip (not xfail) — missing implementations are immediately visible rather than silently passing as expected failures
+- [Phase 03-alpha-engines]: Gaussian fallback for states with fewer than 100 GARCH samples uses stationary synthetic params (omega=var*0.05, alpha=0.05, beta=0.90)
+- [Phase 03-alpha-engines]: OnlineRegimeFilter uses log-space fallback for numerical underflow when forward variable underflows to zero
 
 ### Pending Todos
 
@@ -118,6 +121,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T10:15:59.032Z
-Stopped at: Completed 03-01-PLAN.md — signal schema contract and 32-stub test scaffold
+Last session: 2026-03-22T10:22:36.191Z
+Stopped at: Completed 03-02-PLAN.md — HMM-GARCH regime detector core implementation
 Resume file: None
