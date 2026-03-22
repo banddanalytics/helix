@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 02-data-engineering-06-PLAN.md — Numba accumulator, BacktestRunner, warmup service, 8 tests passing
-last_updated: "2026-03-22T07:52:43.143Z"
+stopped_at: Completed 03-01-PLAN.md — signal schema contract and 32-stub test scaffold
+last_updated: "2026-03-22T10:15:59.036Z"
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 13
-  completed_plans: 13
+  total_plans: 21
+  completed_plans: 14
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-20)
 
 **Core value:** A broker-agnostic trading system where every signal passes through rigorous quality gates (AST validation, PiT compliance, 80%+ test coverage) before reaching live markets
-**Current focus:** Phase 02 — data-engineering
+**Current focus:** Phase 03 — alpha-engines
 
 ## Current Position
 
-Phase: 3
-Plan: Not started
+Phase: 03 (alpha-engines) — EXECUTING
+Plan: 2 of 8
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Plan: Not started
 | Phase 02-data-engineering P03 | 2 | 1 tasks | 2 files |
 | Phase 02-data-engineering P05 | 3 | 2 tasks | 3 files |
 | Phase 02-data-engineering P06 | 200 | 2 tasks | 9 files |
+| Phase 03-alpha-engines P01 | 193 | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -96,6 +97,8 @@ Recent decisions affecting current work:
 - [Phase 02-data-engineering]: spread_cost is a per-bar array (not scalar) enabling different values per bar — Stage A passes SpreadModel.median broadcast, Stage B passes zeros array
 - [Phase 02-data-engineering]: numba_kernels.py isolated from accumulators.py to prevent Numba cache invalidation when non-JIT code changes
 - [Phase 02-data-engineering]: BacktestRunner uses pit_read snapshot parameter for deterministic reproducibility across runs
+- [Phase 03-alpha-engines]: Signal schema uses plain Python int/float types in SignalRow fields for broader compatibility; numpy types annotated but not enforced in dataclass
+- [Phase 03-alpha-engines]: Test stubs use pytest.mark.skip (not xfail) — missing implementations are immediately visible rather than silently passing as expected failures
 
 ### Pending Todos
 
@@ -115,6 +118,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T08:15:00.000Z
-Stopped at: Completed quick task 260322-hyg — shap 0.51.0, signal_types.py, 11 xfail stubs for ALPH-01 through ALPH-09
+Last session: 2026-03-22T10:15:59.032Z
+Stopped at: Completed 03-01-PLAN.md — signal schema contract and 32-stub test scaffold
 Resume file: None
