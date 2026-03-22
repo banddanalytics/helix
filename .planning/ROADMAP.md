@@ -13,7 +13,7 @@ Helix is built in five phases: Foundation establishes quality gates and the brok
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Foundation** - CI/CD quality pipeline and broker-agnostic execution abstraction layer
-- [ ] **Phase 2: Data Engineering** - ArcticDB storage, PiT compliance, and VectorBT backtesting infrastructure
+- [x] **Phase 2: Data Engineering** - ArcticDB storage, PiT compliance, and VectorBT backtesting infrastructure (completed 2026-03-22)
 - [ ] **Phase 3: Alpha Engines** - Regime detection, cointegration, carry, and ML momentum strategy engines
 - [ ] **Phase 4: Risk, IPC & Dashboard** - CVaR/Kelly risk engine, NATS telemetry, and React monitoring dashboard
 - [ ] **Phase 5: Integration & Production** - E2E validation, shadow trading, live deployment, and Stage B preparation
@@ -50,7 +50,7 @@ Plans:
   2. Bar aggregation produces all 6 timeframes with correct session tags, and pit_read returns strictly no data beyond the requested as_of timestamp
   3. A VectorBT backtest run on a named ArcticDB snapshot returns identical results across repeated executions
   4. The Numba warmup service compiles all JIT functions at startup and subsequent cached runs complete in under 5 seconds
-**Plans:** 5/6 plans executed
+**Plans:** 6/6 plans complete
 
 Plans:
 - [x] 02-01-PLAN.md — Wave 0 setup: install packages, numba stub, Makefile extension, test scaffolds
@@ -58,7 +58,7 @@ Plans:
 - [x] 02-03-PLAN.md — Forex tick writer with batch flush and quality flagging
 - [x] 02-04-PLAN.md — Bar aggregator with 6 timeframes, session tagging, and swap writer
 - [x] 02-05-PLAN.md — PiT data manager and EOD snapshot scheduler
-- [ ] 02-06-PLAN.md — VectorBT Pro + Numba backtesting stack and BacktestRunner
+- [x] 02-06-PLAN.md — VectorBT Pro + Numba backtesting stack and BacktestRunner
 
 ### Phase 3: Alpha Engines
 **Goal**: Four trading strategies produce regime-gated signals that fire on correct market conditions and are suppressed in others
@@ -102,7 +102,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/7 | In Progress|  |
-| 2. Data Engineering | 5/6 | In Progress|  |
+| 2. Data Engineering | 6/6 | Complete   | 2026-03-22 |
 | 3. Alpha Engines | 0/TBD | Not started | - |
 | 4. Risk, IPC & Dashboard | 0/TBD | Not started | - |
 | 5. Integration & Production | 0/TBD | Not started | - |

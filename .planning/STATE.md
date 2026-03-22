@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 02-data-engineering-05-PLAN.md — PiT manager, snapshot scheduler, 8 tests passing
-last_updated: "2026-03-22T07:42:35.533Z"
+stopped_at: Completed 02-data-engineering-06-PLAN.md — Numba accumulator, BacktestRunner, warmup service, 8 tests passing
+last_updated: "2026-03-22T07:48:05.530Z"
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 13
-  completed_plans: 12
+  completed_plans: 13
 ---
 
 # Project State
@@ -57,6 +57,7 @@ Plan: 6 of 6
 | Phase 02-data-engineering P04 | 110s | 2 tasks | 3 files |
 | Phase 02-data-engineering P03 | 2 | 1 tasks | 2 files |
 | Phase 02-data-engineering P05 | 3 | 2 tasks | 3 files |
+| Phase 02-data-engineering P06 | 200 | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,9 @@ Recent decisions affecting current work:
 - [Phase 02-data-engineering]: Duplicate detection requires both index.duplicated AND df.duplicated(subset=bid/ask) — timestamp alone is insufficient since legitimate ticks can share a timestamp
 - [Phase 02-data-engineering]: pit_read uses ArcticDB native date_range=(None, as_of_timestamp) for PiT cutoff per D-11
 - [Phase 02-data-engineering]: validate_pit_compliance uses IC analysis with 1.5x threshold — contemp_ic > forward_ic * 1.5 signals look-ahead bias per D-13
+- [Phase 02-data-engineering]: spread_cost is a per-bar array (not scalar) enabling different values per bar — Stage A passes SpreadModel.median broadcast, Stage B passes zeros array
+- [Phase 02-data-engineering]: numba_kernels.py isolated from accumulators.py to prevent Numba cache invalidation when non-JIT code changes
+- [Phase 02-data-engineering]: BacktestRunner uses pit_read snapshot parameter for deterministic reproducibility across runs
 
 ### Pending Todos
 
@@ -104,6 +108,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T07:42:35.527Z
-Stopped at: Completed 02-data-engineering-05-PLAN.md — PiT manager, snapshot scheduler, 8 tests passing
+Last session: 2026-03-22T07:48:05.526Z
+Stopped at: Completed 02-data-engineering-06-PLAN.md — Numba accumulator, BacktestRunner, warmup service, 8 tests passing
 Resume file: None
