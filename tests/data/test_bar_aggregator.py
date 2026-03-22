@@ -191,3 +191,19 @@ def test_bar_symbol_naming() -> None:
         symbols = lib.list_symbols()
 
         assert "EURUSD_1m" in symbols
+
+
+def test_bar_columns_match_schema() -> None:
+    """DATA-03: aggregate_bars output columns match FOREX_BAR_COLUMNS from schemas.py."""
+    from src.data.bar_aggregator import aggregate_bars
+    from src.data.schemas import FOREX_BAR_COLUMNS
+
+    ticks = _make_ticks(
+        timestamps=["2024-01-02 10:00:00", "2024-01-02 10:00:30"],
+        bids=[1.1000, 1.1001],
+        asks=[1.1002, 1.1003],
+        spreads=[0.0002, 0.0002],
+        tick_volumes=[1.0, 1.0],
+    )
+    bars = aggregate_bars(ticks, "1min")
+    assert set(bars.columns) == set(FOREX_BAR_COLUMNS.keys())

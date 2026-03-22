@@ -12,6 +12,8 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pandas as pd
 
+from src.data.schemas import FOREX_BAR_COLUMNS
+
 if TYPE_CHECKING:
     pass
 
@@ -68,6 +70,12 @@ def aggregate_bars(ticks_df: pd.DataFrame, rule: str) -> pd.DataFrame:
     ).astype(np.int8)
     # Drop bars with no trades (NaN open)
     bars = bars.dropna(subset=["open"])
+    expected_cols = set(FOREX_BAR_COLUMNS.keys())
+    actual_cols = set(bars.columns)
+    if actual_cols != expected_cols:
+        raise ValueError(
+            f"Bar schema drift: expected {sorted(expected_cols)}, got {sorted(actual_cols)}"
+        )
     return bars
 
 

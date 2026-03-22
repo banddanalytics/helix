@@ -21,14 +21,12 @@ def configure_vbt() -> None:
 
         vbt.settings.chunking["n_chunks"] = "auto"
         vbt.settings.caching["register_lazily"] = True
-        vbt.settings.caching["use_disk"] = True
-        vbt.settings.caching["disk_path"] = "/tmp/vbt_cache"  # noqa: S108
 
         available_mb = psutil.virtual_memory().available // (1024 * 1024)
-        vbt.settings.chunking["chunk_size"] = int(available_mb * 0.8)
+        vbt.settings.chunking["size"] = int(available_mb * 0.8)
 
         logger.info(
-            "VectorBT Pro configured: chunk_size=%d MB, disk_path=/tmp/vbt_cache",
+            "VectorBT Pro configured: chunk_size=%d MB",
             int(available_mb * 0.8),
         )
     except ImportError:
