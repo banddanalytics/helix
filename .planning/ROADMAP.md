@@ -38,7 +38,7 @@ Plans:
 - [x] 01-03-PLAN.md — PiT compliance validator, pre-commit hooks, GitHub Actions CI
 - [x] 01-04-PLAN.md — Abstract execution interfaces (ABCs) and dataclasses
 - [ ] 01-05-PLAN.md — MT5Adapter and SimAdapter concrete implementations
-- [ ] 01-06-PLAN.md — SpreadModel, SwapRates, and LotSizer utilities
+- [x] 01-06-PLAN.md — SpreadModel, SwapRates, and LotSizer utilities
 - [ ] 01-07-PLAN.md — ZeroMQ bridge: MessagePack schemas, publisher, consumer
 
 ### Phase 2: Data Engineering

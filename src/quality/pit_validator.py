@@ -18,12 +18,12 @@ Usage:
     violations = validator.validate_file(Path("src/alpha/strategy.py"))
     all_violations = validator.validate_directory(Path("src/alpha/"))
 """
+
 from __future__ import annotations
 
 import ast
 from dataclasses import dataclass
 from pathlib import Path
-
 
 PRICE_COLUMNS: frozenset[str] = frozenset(
     {

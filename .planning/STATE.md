@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 01-foundation-03-PLAN.md — PiT validator, pre-commit hooks, and GitHub Actions CI
-last_updated: "2026-03-21T19:27:11.056Z"
+stopped_at: Completed 01-foundation-06-PLAN.md — SpreadModel, SwapRateCalculator, LotSizer execution utilities
+last_updated: "2026-03-21T19:32:46.636Z"
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 7
-  completed_plans: 4
+  completed_plans: 5
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 ## Current Position
 
 Phase: 01 (foundation) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 
 ## Performance Metrics
 
@@ -51,6 +51,7 @@ Plan: 5 of 7
 | Phase 01-foundation P02 | 8 | 2 tasks | 16 files |
 | Phase 01 P02 | 14 | 2 tasks | 18 files |
 | Phase 01-foundation P03 | 20 | 2 tasks | 13 files |
+| Phase 01-foundation P06 | 3 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,8 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: arcticdb stub intentionally excludes upsert as the canonical phantom-function test case (QUAL-01)
 - [Phase 01-foundation]: Pre-commit uses local mypy with system language to access project venv deps (avoids duplicating additional_dependencies)
 - [Phase 01-foundation]: pytest and validators excluded from pre-commit per D-07/D-08/D-09 — CI only gates
+- [Phase 01-foundation]: SpreadModel wiring into SimAdapter deferred to Phase 2 — Phase 1 uses fixed spread_pips float; Phase 2 replaces with SpreadModel.median after ArcticDB tick history available
+- [Phase 01-foundation]: LotSizer floor-rounds to volume_step via math.floor to prevent position over-sizing
 
 ### Pending Todos
 
@@ -86,6 +89,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-21T19:27:11.053Z
-Stopped at: Completed 01-foundation-03-PLAN.md — PiT validator, pre-commit hooks, and GitHub Actions CI
+Last session: 2026-03-21T19:32:46.633Z
+Stopped at: Completed 01-foundation-06-PLAN.md — SpreadModel, SwapRateCalculator, LotSizer execution utilities
 Resume file: None
