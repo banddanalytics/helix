@@ -38,7 +38,7 @@ Build the risk engine (CVaR computation, CVXPY portfolio optimization, Kelly siz
 
 ### CVaR + CVXPY (all locked from spec, no changes)
 - **D-16:** Three CVaR methods as exact code in spec: historical simulation, parametric (GARCH σ from Phase 3 regime detector), Cornish-Fisher. Plus spread-adjusted variant using p95 spread during worst-10% return periods.
-- **D-17:** CVXPY LP formulation: Rockafellar-Uryasev. ECOS solver primary, SCS fallback. Budget constraint 5%, per-strategy weight cap 25%.
+- **D-17:** CVXPY LP formulation: Rockafellar-Uryasev. CLARABEL solver primary, SCS fallback (ECOS not installed — see RESEARCH.md). Budget constraint 5%, per-strategy weight cap 25%.
 - **D-18:** Kelly multipliers: Trending 0.5×, Mean-Reverting 0.4×, Crisis 0.1×. Max fraction 15%. Cap enforced after regime adjustment.
 
 ### Circuit Breakers (locked from RISK-06/07/08)
