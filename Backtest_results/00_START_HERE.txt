@@ -1,0 +1,255 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                                                                              ║
+║                    BACKTEST RESULTS LIBRARY — START HERE                    ║
+║                                                                              ║
+║              Welcome to the Helix Trading System Backtest Journal            ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+🎯 WHAT IS THIS?
+═════════════════════════════════════════════════════════════════════════════
+
+A complete trading journal and backtest results library for the Helix
+algorithmic trading system. This directory maintains:
+
+  • backtest_log.csv — Master trading journal (append-only CSV)
+  • Detailed analysis reports (Markdown format)
+  • Documentation and guides
+  • Python utility for programmatic logging
+
+Purpose: Systematic tracking and iteration of strategy parameters until
+the algorithm achieves positive expectancy (Sharpe > 0.5).
+
+
+📋 QUICK START (5 MINUTES)
+═════════════════════════════════════════════════════════════════════════════
+
+1. Open INDEX.md (navigation hub)
+2. Read QUICK_REFERENCE.md (key concepts)
+3. Read VALIDATION_REPORT_2026-03-22.md (initial backtest results)
+4. Plan modifications to scripts/validate_pipeline.py
+5. Run next backtest and log the results
+
+That's it! Everything else is reference documentation.
+
+
+📁 FILES IN THIS DIRECTORY
+═════════════════════════════════════════════════════════════════════════════
+
+00_START_HERE.txt              ← You are here
+
+INDEX.md                       Navigation hub — read this first!
+HANDOFF.md                     Complete handoff (very detailed)
+README.md                      How-to guide (methodology)
+QUICK_REFERENCE.md             Trader cheat sheet (most useful)
+REPORT_TEMPLATE.md             Template for future detailed reports
+
+backtest_log.csv               ← MASTER TRADING JOURNAL (append rows here!)
+VALIDATION_REPORT_2026-03-22.md   Initial backtest analysis
+
+
+📊 CURRENT STATUS
+═════════════════════════════════════════════════════════════════════════════
+
+2 Initial Backtest Runs (2026-03-22):
+
+  EURUSD (1H, 18 months)
+    • Net Sharpe: -5.581 ❌ TARGET: > 0.5
+    • Max Drawdown: -86.4% ❌ TARGET: < 25%
+    • Win Rate: 35.4% ❌ TARGET: > 50%
+    • Trades: 1,790 (too many — overtrading)
+
+  GBPUSD (1H, 18 months)
+    • Net Sharpe: -6.363 ❌ TARGET: > 0.5
+    • Max Drawdown: -75.3% ❌ TARGET: < 25%
+    • Win Rate: 31.9% ❌ TARGET: > 50%
+    • Trades: 1,675 (too many — overtrading)
+
+FINDING: Strategy destroys capital. Root cause: weak signal quality,
+          overtrading, short training window. Infrastructure is solid.
+
+NEXT: Iterate on signal design (thresholds, features, labels, training window)
+
+
+🔧 NEXT STEPS (THIS WEEK)
+═════════════════════════════════════════════════════════════════════════════
+
+Iteration 1 (Threshold Tuning):
+  1. Modify: src/alpha/ml_price_momentum/models/ensemble.py
+     Change: signal thresholds from 0.53/0.47 to 0.60/0.40
+  2. Run: PYTHONPATH=. python scripts/validate_pipeline.py
+  3. Log: Add results to backtest_log.csv
+  4. Expected: ~60% fewer trades, higher quality signals
+
+If Iteration 1 improves Sharpe:
+  5. Commit change to git
+  6. Proceed to Iteration 2 (longer training window)
+
+If Iteration 1 regresses Sharpe:
+  7. Revert change
+  8. Try Iteration 2 instead
+
+
+📖 DOCUMENTATION ROADMAP
+═════════════════════════════════════════════════════════════════════════════
+
+New to this library?
+  → Start: INDEX.md (overview)
+  → Then: QUICK_REFERENCE.md (key concepts)
+  → Then: README.md (detailed methodology)
+
+Running your first backtest iteration?
+  → Read: QUICK_REFERENCE.md (how to add a backtest)
+  → Use: backtest_log.csv (log the results)
+  → Compare: Previous row (improved or regressed?)
+
+Evaluating performance metrics?
+  → Read: QUICK_REFERENCE.md (interpretation guide)
+  → Reference: backtest_log.csv (compare rows)
+
+Need a template for a detailed report?
+  → Use: REPORT_TEMPLATE.md
+  → Save: VALIDATION_REPORT_YYYY-MM-DD.md
+
+Understanding why the first backtest failed?
+  → Read: VALIDATION_REPORT_2026-03-22.md (Section IV: Diagnosis)
+
+Checking if strategy is ready for Phase 4 (risk management)?
+  → Read: INDEX.md or QUICK_REFERENCE.md (readiness checklist)
+
+
+🐍 PYTHON API
+═════════════════════════════════════════════════════════════════════════════
+
+Programmatic logging (optional):
+
+  from src.backtest import BacktestLogger, BacktestMetrics
+
+  logger = BacktestLogger()
+
+  metrics = BacktestMetrics(
+      pair="EURUSD",
+      timeframe="1H",
+      data_period_months=18,
+      bars_available=9095,
+      bars_oos=8064,
+      config_train_window=756,
+      config_test_window=21,
+      config_purge_gap=5,
+      config_step=21,
+      num_wf_windows=384,
+      num_trades=1790,
+      trades_per_bar_pct=22.2,
+      gross_sharpe=-3.637,
+      net_sharpe=-5.581,
+      max_drawdown_pct=-86.4,
+      win_rate_pct=35.4,
+      profit_factor=0.805,
+      total_return_pct=-85.1,
+      base_spread_pips=0.00012,
+      stable_features="mom_1bar,mom_5bar,mom_10bar,mom_22bar,mom_63bar",
+      regime_trending_pct=80.3,
+      regime_meanrev_pct=12.9,
+      regime_volatile_pct=6.8,
+      notes="My iteration description here"
+  )
+
+  logger.log_result(metrics)  # Appends to backtest_log.csv
+
+
+📈 METRICS EXPLAINED (Most Important First)
+═════════════════════════════════════════════════════════════════════════════
+
+1. NET SHARPE (PRIMARY)
+   What: Return per unit of risk, including transaction costs
+   Target: > 0.5 (>1.0 is good, >2.0 is excellent)
+   Current: -5.58 to -6.36 (FAIL)
+
+2. MAX DRAWDOWN
+   What: Largest peak-to-trough loss (%)
+   Target: < 25% (< 20% is good, < 10% is excellent)
+   Current: -75% to -86% (FAIL — catastrophic)
+
+3. PROFIT FACTOR
+   What: Gross wins / |Gross losses|
+   Target: > 1.2 (> 1.5 is good, > 2.0 is excellent)
+   Current: 0.76 to 0.81 (FAIL)
+
+4. WIN RATE
+   What: % of trades that are profitable
+   Target: > 50% (> 55% is good, > 60% is excellent)
+   Current: 31-35% (FAIL — below coin-flip)
+
+5. TRADES
+   What: Total number of trades generated
+   Target: < 500 ideal (< 20% of available bars)
+   Current: 1,675 to 1,790 (FAIL — overtrading)
+
+
+✅ QUALITY ASSURANCE
+═════════════════════════════════════════════════════════════════════════════
+
+This library includes:
+
+  [✓] Look-ahead bias prevention (PiT-compliant backtester)
+  [✓] Transaction costs (pair-specific spread costs)
+  [✓] Explainability (SHAP feature importance)
+  [✓] Reproducibility (deterministic seed, version tracking)
+  [✓] Audit trail (CSV logging of all runs)
+  [✓] Cost sensitivity analysis (6 spread multipliers)
+  [✓] Regime analysis (HMM-GARCH classification)
+  [✓] Cross-pair correlation (diversification assessment)
+
+
+📞 COMMON QUESTIONS
+═════════════════════════════════════════════════════════════════════════════
+
+Q: How do I log a new backtest?
+A: Add a row to backtest_log.csv with the metrics. See README.md.
+
+Q: What's the difference between Gross and Net Sharpe?
+A: Gross = before spread costs | Net = after spread costs (use Net!)
+
+Q: How do I know if my change improved things?
+A: Compare your new row to the previous row in backtest_log.csv.
+   If Net Sharpe increased, your change helped!
+
+Q: What's the Python API for?
+A: Automate logging if you're running many backtests programmatically.
+   Manual CSV editing works fine for < 10 runs/day.
+
+Q: Why did the initial backtest fail so badly?
+A: See VALIDATION_REPORT_2026-03-22.md, Section IV: Diagnosis.
+   TL;DR: Bad signals, overtrading, short training window.
+
+Q: Is this ready for live trading?
+A: No! This is for backtesting only. Needs Phase 4 (risk management)
+   and Phase 5 (shadow trading) before live deployment.
+
+Q: How many iterations until the strategy works?
+A: Estimated 5-10 iterations based on recommended changes:
+   1. Thresholds
+   2. Training window
+   3. Labels
+   4. Features
+   5. Regime gating
+
+
+🚀 YOU'RE READY!
+═════════════════════════════════════════════════════════════════════════════
+
+1. Start with: INDEX.md (5-10 minutes)
+2. Then read: QUICK_REFERENCE.md (5-10 minutes)
+3. Then code: Modify scripts/validate_pipeline.py (15-30 minutes)
+4. Then run: PYTHONPATH=. python scripts/validate_pipeline.py (5-30 minutes)
+5. Then log: Add row to backtest_log.csv (2 minutes)
+6. Then repeat: Go back to step 3
+
+Questions? Everything is documented. Start with INDEX.md!
+
+═════════════════════════════════════════════════════════════════════════════
+
+Setup completed: 2026-03-23
+Status: Ready for use ✅
+Next update: After Iteration 1 (signal threshold tuning)
