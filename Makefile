@@ -1,4 +1,9 @@
-.PHONY: lint typecheck test test-integration validate all
+.PHONY: lint typecheck test test-integration validate install-vbt all
+
+install-vbt:
+	@[ -n "$$VBT_TOKEN" ] || (echo "ERROR: VBT_TOKEN is not set. Copy .env.example to .env and set your token." && exit 1)
+	.venv/bin/pip install vectorbtpro==2026.3.1 \
+		--extra-index-url "https://$$VBT_TOKEN@packages.vectorbt.pro/simple/"
 
 lint:
 	.venv/bin/ruff check . && .venv/bin/ruff format --check .
