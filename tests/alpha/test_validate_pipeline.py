@@ -1,4 +1,5 @@
 """Validation pipeline tests — cost sensitivity and SHAP stability contracts."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -46,12 +47,19 @@ def test_cost_sensitivity_monotonic() -> None:
     sharpes = []
     for mult in [0.5, 1.0, 2.0, 5.0]:
         spread_cost = np.full(len(close), base_spread * mult)
-        equity, _, pnl = single_pass_backtest(
-            close, signal, 0.01, atr, spread_cost,
+        equity, _, _pnl, gross_pnl = single_pass_backtest(
+            close,
+            signal,
+            0.01,
+            atr,
+            spread_cost,
         )
-        returns = pnl[1:] / np.maximum(equity[:-1], 1.0)
-        costs = spread_cost[1:]
-        sharpe = cost_adjusted_sharpe(returns, costs, bars_per_year=bars_per_year)
+        # Use gross_pnl (no spread deductions) as the base return, then pass
+        # spread_cost separately so cost_adjusted_sharpe deducts it exactly once.
+        gross_returns = gross_pnl[1:] / np.maximum(equity[:-1], 1.0)
+        sharpe = cost_adjusted_sharpe(
+            gross_returns, spread_cost[1:], bars_per_year=bars_per_year
+        )
         sharpes.append(sharpe)
 
     assert sharpes[-1] < sharpes[0], (
@@ -97,8 +105,12 @@ def test_single_pass_backtest_equity_nonnegative() -> None:
     close, signal, atr = _make_synthetic_backtest_data()
     spread_cost = np.full(len(close), 0.00012)
 
-    equity, _, _ = single_pass_backtest(
-        close, signal, 0.01, atr, spread_cost,
+    equity, _, _, _ = single_pass_backtest(
+        close,
+        signal,
+        0.01,
+        atr,
+        spread_cost,
     )
 
     assert np.all(equity > 0), "Equity went negative"

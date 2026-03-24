@@ -1,13 +1,16 @@
-"""FeatureBuilder — assembles all 27 features with PiT .shift(1) compliance.
+"""FeatureBuilder — assembles all 27 features with PiT compliance.
 
 Architecture:
 - Tiers 1/2/3/5 are @njit compiled arrays (fast, ~1M bars < 5s)
 - Tier 4 is pure pandas (rolling corr/std — not Numba-compatible)
-- All Numba outputs are shifted by 1 at source; FeatureBuilder applies one
-  final .shift(1) over the assembled DataFrame as a belt-and-suspenders PiT
-  compliance layer.
+- PiT compliance is enforced inside each Numba function: feature[i] uses
+  data up to index i-1 only. No additional .shift() is applied in build()
+  because that would make features 2-bar stale and invert the win rate.
 """
+
 from __future__ import annotations
+
+from typing import ClassVar
 
 import numpy as np
 import pandas as pd
@@ -23,7 +26,7 @@ class FeatureBuilder:
         configured pairs.  If None, Tier 4 columns are filled with NaN.
     """
 
-    FEATURE_NAMES: list[str] = [
+    FEATURE_NAMES: ClassVar[list[str]] = [
         # Tier 1 — Momentum (8)
         "mom_1bar",
         "mom_5bar",
@@ -94,7 +97,8 @@ class FeatureBuilder:
         -------
         pd.DataFrame
             Shape (n, 27) with columns ``FEATURE_NAMES``.  All values at row i
-            are derived from data at rows <= i-1 (PiT compliant).
+            are derived from data at rows <= i-1 (PiT compliant, enforced by
+            the Numba kernels — no extra shift applied here).
         """
         from src.alpha.ml_price_momentum.features.cross_asset import (
             compute_cross_asset_features,
@@ -115,10 +119,10 @@ class FeatureBuilder:
         n = len(close)
 
         # --- Tiers 1, 2, 3, 5 (Numba @njit) ---
-        mom = compute_momentum_features(close, high, low)          # (n, 8)
-        vol = compute_volatility_features(close, high, low)        # (n, 6)
+        mom = compute_momentum_features(close, high, low)  # (n, 8)
+        vol = compute_volatility_features(close, high, low)  # (n, 6)
         sess = compute_session_features(open_arr, high, low, close, hour, dow)  # (n, 5)
-        tkvol = compute_tick_volume_features(close, tick_volume)   # (n, 4)
+        tkvol = compute_tick_volume_features(close, tick_volume)  # (n, 4)
 
         # --- Tier 4 (pandas) ---
         if self._cross_asset_data is not None:
@@ -137,12 +141,12 @@ class FeatureBuilder:
         raw = np.hstack([mom, vol, sess, ca_arr, tkvol])
         df = pd.DataFrame(raw, columns=self.FEATURE_NAMES)
 
-        # --- Belt-and-suspenders PiT shift ---
-        # The Numba functions already compute features at index i from data[i-1],
-        # so their output is already PiT aligned. Applying .shift(1) here adds one
-        # additional row of NaN at the top, guaranteeing the assembly step can never
-        # accidentally expose row-0 data to the model.
-        df = df.shift(1)
+        # PiT compliance is already enforced inside each Numba function:
+        # every feature at index i uses data from indices <= i-1 (e.g. close[i-1]).
+        # A second .shift(1) here would make features 2-bar stale — the features
+        # at row i would describe market state at i-2, not i-1. That misalignment
+        # inverts win rate because the model trains on a feature-label gap of 3 bars
+        # rather than the intended 1 bar. Do NOT add .shift(1) here.
 
         # Forward-fill NaN for the warmup period so downstream models get finite input
         df = df.ffill()
@@ -178,7 +182,7 @@ class FeatureBuilder:
         flagged: list[tuple[str, str, float]] = []
         cols = list(corr_matrix.columns)
         for i, col_a in enumerate(cols):
-            for col_b in cols[i + 1:]:
+            for col_b in cols[i + 1 :]:
                 val = corr_matrix.loc[col_a, col_b]
                 if abs(val) > threshold:
                     flagged.append((col_a, col_b, float(val)))

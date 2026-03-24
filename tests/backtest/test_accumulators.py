@@ -1,4 +1,5 @@
 """Tests for Numba single-pass backtest accumulator (DATA-06)."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -20,7 +21,7 @@ def test_known_pnl() -> None:
     spread_cost = np.zeros(10)
     risk_per_trade = 0.01
 
-    equity, position, pnl = single_pass_backtest(
+    equity, position, _pnl, _gross_pnl = single_pass_backtest(
         close=close,
         signal=signal,
         risk_per_trade=risk_per_trade,
@@ -33,7 +34,7 @@ def test_known_pnl() -> None:
     # On bar 4: entry, pnl=0 (no spread_cost)
     # On bar 5: hold, pnl = 1 * (1.12 - 1.11) * 100_000 = 1000
     # On bar 6: hold, pnl = 1 * (1.13 - 1.12) * 100_000 = 1000
-    # On bar 7: hold (signal[6]=1, position[6]=1), pnl = 1 * (1.14 - 1.13) * 100_000 = 1000
+    # On bar 7: hold (signal[6]=1, position[6]=1), pnl = 1*(1.14-1.13)*100_000 = 1000
     # Wait — signal[6]=1 so bar 7 still holds. signal[7]=0 triggers exit on bar 8.
     # Bar 8: exit, pnl = 1 * (1.14 - 1.14) * 100_000 = 0
 
@@ -46,7 +47,7 @@ def test_known_pnl() -> None:
 
 
 def test_spread_deduction() -> None:
-    """DATA-06: Forex PnL is lower than zero-spread PnL by exactly 2 x spread per round-trip trade."""
+    """DATA-06: Forex PnL is lower by exactly 2x spread per round-trip trade."""
     from src.backtest.accumulators import single_pass_backtest
 
     # Simple 1-trade sequence: entry bar 1, hold bars 2-3, exit bar 4
@@ -62,16 +63,22 @@ def test_spread_deduction() -> None:
 
     # Zero spread run
     spread_zero = np.zeros(n)
-    equity_zero, _, _ = single_pass_backtest(
-        close=close, signal=signal, risk_per_trade=risk_per_trade,
-        atr=atr, spread_cost=spread_zero,
+    equity_zero, _, _, _ = single_pass_backtest(
+        close=close,
+        signal=signal,
+        risk_per_trade=risk_per_trade,
+        atr=atr,
+        spread_cost=spread_zero,
     )
 
     # Non-zero spread run
     spread_nonzero = np.full(n, spread_val)
-    equity_nonzero, _, _ = single_pass_backtest(
-        close=close, signal=signal, risk_per_trade=risk_per_trade,
-        atr=atr, spread_cost=spread_nonzero,
+    equity_nonzero, _, _, _ = single_pass_backtest(
+        close=close,
+        signal=signal,
+        risk_per_trade=risk_per_trade,
+        atr=atr,
+        spread_cost=spread_nonzero,
     )
 
     # Per plan: difference = 2 x spread_cost x pos_size (entry + exit)
@@ -90,9 +97,12 @@ def test_flat_signal_no_trades() -> None:
     atr = np.full(n, 0.001)
     spread_cost = np.full(n, 0.0001)
 
-    equity, position, pnl = single_pass_backtest(
-        close=close, signal=signal, risk_per_trade=0.01,
-        atr=atr, spread_cost=spread_cost,
+    equity, position, pnl, _gross_pnl = single_pass_backtest(
+        close=close,
+        signal=signal,
+        risk_per_trade=0.01,
+        atr=atr,
+        spread_cost=spread_cost,
     )
 
     assert np.all(equity == pytest.approx(100_000.0)), "Equity must be flat at 100,000"
@@ -112,9 +122,12 @@ def test_equity_never_negative() -> None:
     atr = np.full(n, 0.001)
     spread_cost = np.full(n, 0.00005)
 
-    equity, _, _ = single_pass_backtest(
-        close=close, signal=signal, risk_per_trade=0.01,
-        atr=atr, spread_cost=spread_cost,
+    equity, _, _, _ = single_pass_backtest(
+        close=close,
+        signal=signal,
+        risk_per_trade=0.01,
+        atr=atr,
+        spread_cost=spread_cost,
     )
 
     assert np.all(equity > 0), "Equity must always be positive"

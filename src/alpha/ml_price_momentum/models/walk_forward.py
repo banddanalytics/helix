@@ -1,12 +1,18 @@
 """Walk-forward validation engine for ML price momentum ensemble.
 
 Configuration:
-  train_window : 756 bars  (3 years of daily bars)
-  val_size     : 63 bars   (last 63 bars of train for XGBoost early stopping)
-  test_window  : 21 bars   (1 month OOS)
+  train_window : 2016 bars (84 days of 1H bars ≈ 3 months of trading hours)
+  val_size     : 252 bars  (last ~10 days of train for XGBoost early stopping)
+  test_window  : 168 bars  (7 days OOS — 1 week at 24 bars/day)
   purge_gap    : 5 bars    (prevents label leakage between train and test)
-  step         : 21 bars   (monthly retraining cadence)
+  step         : 168 bars  (weekly retraining cadence)
+
+Note: 756 was the original value, copied from a daily-bar convention (3 years
+of daily bars). On 1H FX data, 756 bars is only ~31 calendar days — far too
+small for regime-conditional XGBoost learning. At 7% volatile-regime frequency,
+756 bars yields only ~53 volatile-regime samples. 2016 bars gives ~141.
 """
+
 from __future__ import annotations
 
 import logging
@@ -22,13 +28,16 @@ logger = logging.getLogger("helix.alpha")
 
 @dataclass
 class WalkForwardConfig:
-    """Walk-forward splitter configuration."""
+    """Walk-forward splitter configuration.
 
-    train_window: int = 756  # 3 years of ~daily bars
-    val_size: int = 63  # last portion of train used for XGBoost eval_set
-    test_window: int = 21  # 1 month OOS
+    All units are 1H bars (24 bars per trading day, ~504 bars per month).
+    """
+
+    train_window: int = 2016  # ~3 months of 1H bars (84 trading days)
+    val_size: int = 252  # ~10 days of 1H bars for XGBoost eval_set
+    test_window: int = 168  # 7 days OOS (1 week at 24 bars/day)
     purge_gap: int = 5  # bars between train end and test start (embargo)
-    step: int = 21  # monthly retraining cadence
+    step: int = 168  # weekly retraining cadence
 
 
 @dataclass
@@ -64,7 +73,7 @@ class WalkForwardEngine:
 
     def run(
         self,
-        X: np.ndarray,
+        x: np.ndarray,
         y: np.ndarray,
         feature_names: list[str] | None = None,
     ) -> list[WindowResult]:
@@ -72,7 +81,7 @@ class WalkForwardEngine:
 
         Parameters
         ----------
-        X : np.ndarray, shape (n_samples, n_features)
+        x : np.ndarray, shape (n_samples, n_features)
         y : np.ndarray, shape (n_samples,)
         feature_names : list[str] | None
             Optional feature names for importance reporting.
@@ -83,7 +92,7 @@ class WalkForwardEngine:
             One result per OOS window.
         """
         cfg = self._config
-        n = len(X)
+        n = len(x)
         results: list[WindowResult] = []
 
         n_wins = self.n_windows(n)
@@ -105,11 +114,11 @@ class WalkForwardEngine:
             if test_end > n:
                 break
 
-            X_train = X[train_start:val_start]
+            x_train = x[train_start:val_start]
             y_train = y[train_start:val_start]
-            X_val = X[val_start:train_end]
+            x_val = x[val_start:train_end]
             y_val = y[val_start:train_end]
-            X_test = X[test_start:test_end]
+            x_test = x[test_start:test_end]
             y_test = y[test_start:test_end]
 
             logger.debug(
@@ -124,14 +133,12 @@ class WalkForwardEngine:
             )
 
             ensemble = EnsembleModel()
-            ensemble.fit(X_train, y_train, X_val, y_val)
-            predictions = ensemble.predict_proba(X_test)
+            ensemble.fit(x_train, y_train, x_val, y_val)
+            predictions = ensemble.predict_proba(x_test)
 
             feature_importance = None
             if analyzer is not None:
-                shap_result = analyzer.analyze_window(
-                    ensemble.xgb_model.model, X_test
-                )
+                shap_result = analyzer.analyze_window(ensemble.xgb_model.model, x_test)
                 feature_importance = shap_result["feature_importance"]
 
             results.append(

@@ -3,11 +3,12 @@
 Per D-14: Full BacktestRunner delivered in Phase 2.
 Per D-15: Persists results to ArcticDB portfolio library.
 """
+
 from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -78,8 +79,8 @@ class BacktestRunner:
         """Execute a backtest.
 
         Args:
-            strategy_fn: Function that takes a shifted DataFrame and returns a signal array
-                         (1=long, -1=short, 0=flat).
+            strategy_fn: Function that takes a shifted DataFrame and returns
+                         a signal array (1=long, -1=short, 0=flat).
             symbol: Forex pair (e.g., "EURUSD").
             start: Start date.
             end: End date (as_of for pit_read).
@@ -110,7 +111,9 @@ class BacktestRunner:
             raise ValueError(msg)
 
         # 2. Shift features to prevent look-ahead bias
-        df_shifted = shift_features(df, columns=["open", "high", "low", "close"], periods=1)
+        df_shifted = shift_features(
+            df, columns=["open", "high", "low", "close"], periods=1
+        )
         df_shifted = df_shifted.iloc[1:]  # Drop first row (NaN from shift)
 
         # 3. Compute ATR from shifted data
@@ -137,7 +140,7 @@ class BacktestRunner:
             spread_cost = spread_cost_array
 
         # 6. Run Numba accumulator
-        equity, position, pnl = single_pass_backtest(
+        equity, position, pnl, _gross_pnl = single_pass_backtest(
             close=df_shifted["close"].to_numpy(),
             signal=signal.astype(np.int8) if signal.dtype != np.int8 else signal,
             risk_per_trade=self._risk_per_trade,
@@ -199,7 +202,7 @@ class BacktestRunner:
             "final_equity": result.final_equity,
             "total_return": result.total_return,
             "num_trades": result.num_trades,
-            "created_at": datetime.now(tz=timezone.utc).isoformat(),
+            "created_at": datetime.now(tz=UTC).isoformat(),
         }
 
         lib.write(portfolio_symbol, df, metadata=metadata)
