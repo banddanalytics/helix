@@ -141,6 +141,7 @@ None yet.
 | 260322-hyg | Fix Phase 3 pre-execution blockers: shap install, signal_types, test scaffold | 2026-03-22 | f0d63d6 | [260322-hyg](./quick/260322-hyg-fix-phase-3-pre-execution-blockers/) |
 | 260322-uov | Make annualization factor configurable for all bar timeframes | 2026-03-22 | 58536ac | [260322-uov](./quick/260322-uov-make-annualization-factor-configurable-f/) |
 | 260322-vf9 | Wire SHAP into walk-forward loop + Tier 1-4 validation script | 2026-03-22 | c20af93 | [260322-vf9](./quick/260322-vf9-wire-shap-into-walk-forward-loop-and-bui/) |
+| 260324-8b9 | Add cost and duration tracking fields to GSD tooling | 2026-03-24 | TBD | [260324-8b9](./quick/260324-8b9-add-cost-and-duration-tracking-fields-to/) |
 
 ### Blockers/Concerns
 
@@ -149,6 +150,6 @@ None yet.
 
 ## Session Continuity
 
-Last activity: 2026-03-22 - Completed quick task 260322-vf9: Wire SHAP + validation script
+Last activity: 2026-03-24 - Completed quick task 260324-8b9: Add cost tracking to GSD tooling
 Stopped at: Phase 4 UI-SPEC approved
 Resume file: .planning/phases/04-risk-ipc-dashboard/04-UI-SPEC.md
